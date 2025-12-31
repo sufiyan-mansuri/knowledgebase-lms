@@ -23,10 +23,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
      path('', include('core.urls')),
     path('user/', include('users.urls')),
-    path('dashboard/', include('dashboard.urls'))
+    path('dashboard/', include('dashboard.urls')),
+    path('courses/', include('courses.urls'))
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MIDEA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
     

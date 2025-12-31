@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from users.decorators import allowed_users
+from courses.models import Course
 
 # Create your views here.
 @allowed_users(['Students'])
@@ -9,4 +10,6 @@ def student_dashboard(request):
 
 @allowed_users(['Instructors'])
 def instructor_dashboard(request):
-    return render(request, 'dashboard/instructor_dashboard.html')
+    courses = Course.objects.filter(instructor=request.user.id)
+
+    return render(request, 'dashboard/instructor_dashboard.html', {'courses': courses})

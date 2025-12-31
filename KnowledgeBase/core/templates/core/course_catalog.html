@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Available Courses</h1>
+
+{% if published_courses %}
+    {% for published_course in published_courses  %}
+        <div class="card" style="width: 18rem;">
+            <img src="{{ published_course.thumbnail.url }}" class="card-img-top" alt="{{ published_course.title }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ published_course.title }}</h5>
+                <p class="card-text">{{ published_course.description }}</p>
+                <a href="#" class="btn btn-primary">Course Details</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock content %}

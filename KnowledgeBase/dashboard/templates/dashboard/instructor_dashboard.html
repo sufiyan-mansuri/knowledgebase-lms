@@ -3,6 +3,25 @@
 {% block content %}
 
 <h1>Welcome Instructor, {{ user.username }}</h1>
-<p><a href="{% url 'logout' %}">Logout</a></p>
+
+<ul>
+    <li><a href="{% url 'logout' %}">Logout</a></li>
+    <li><a href="{% url 'courses:course_create' %}">Create A New Course</a></li>
+</ul>
+
+<h2>Your courses:</h2>
+<p>{{ course }}</p>
+<div class="row">
+    {% for course in courses  %}
+        <div class="card" style="width: 18rem;">
+            <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}">
+            <div class="card-body">
+                <p class="card-text">{{ course.title }}</p>
+            </div>
+            <a class="btn btn-warning" href="{% url 'courses:course_update' course.slug %}" role="button">Edit</a>
+            <a class="btn btn-danger" href="{% url 'courses:course_delete' course.slug %}" role="button">Delete</a>
+        </div>
+    {% endfor %}
+</div>
 
 {% endblock content %}
