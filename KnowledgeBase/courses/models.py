@@ -2,6 +2,7 @@ from django.db import models
 from users import models as userModels
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -44,4 +45,25 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.title} - {self.instructor.username}"
     
-    
+class Module(models.Model):
+    title = models.CharField(max_length=256)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
+    order = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['course', 'order'],
+                name='unique_module_order_per_course'
+            )
+        ]
+
+    def clean(self):
+        if self.order <= 0:
+            raise ValidationError({'order': 'Order must be a positive number.'})
+
+    def __str__(self):
+        return f"{self.title} - {self.course.title}"

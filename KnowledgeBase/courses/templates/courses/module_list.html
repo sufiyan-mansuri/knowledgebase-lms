@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Modules</h1>
+<a class="btn btn-primary" href="{% url 'courses:module_create' course.slug  %}" role="button">Add Module</a>
+
+<table class="table table-hover">
+  <thead>
+    <th>Title</th>
+    <th>Order</th>
+    <th>Actions</th>
+  </thead>
+  <tbody>
+    {% if object_list %}
+        {% for module in object_list  %}
+            <tr>
+                <td>{{ module.title }}</td>
+                <td>{{ module.order }}</td>
+                <td>
+                  <a class="btn btn-warning" href='{% url "courses:module_update" course.slug module.id %}' role="button">Edit</a>
+                  <a class="btn btn-danger" href='{% url "courses:module_delete" course.slug module.id %}' role="button">Delete</a>
+                  <a class="btn btn-success" href="#" role="button">Lessons</a>
+                </td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan='3'>No modules created for this lesson</td>
+        </tr>
+    {% endif %}
+  </tbody>
+</table>
+
+{% endblock content %}

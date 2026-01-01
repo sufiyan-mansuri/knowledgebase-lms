@@ -21,3 +21,4 @@ class CourseAdminForm(forms.ModelForm):
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
 
+admin.site.register(models.Module)

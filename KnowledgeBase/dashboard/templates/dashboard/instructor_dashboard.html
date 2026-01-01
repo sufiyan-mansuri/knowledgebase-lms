@@ -17,9 +17,10 @@
             <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}">
             <div class="card-body">
                 <p class="card-text">{{ course.title }}</p>
+                <a class="btn btn-warning" href="{% url 'courses:course_update' course.slug %}" role="button">Edit</a>
+                <a class="btn btn-danger" href="{% url 'courses:course_delete' course.slug %}" role="button">Delete</a>
+                <a class="btn btn-success" href="{% url 'courses:module_list' course.slug %}" role="button">Modules</a>
             </div>
-            <a class="btn btn-warning" href="{% url 'courses:course_update' course.slug %}" role="button">Edit</a>
-            <a class="btn btn-danger" href="{% url 'courses:course_delete' course.slug %}" role="button">Delete</a>
         </div>
     {% endfor %}
 </div>
