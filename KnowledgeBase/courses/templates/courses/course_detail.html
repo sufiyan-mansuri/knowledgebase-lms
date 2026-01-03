@@ -8,7 +8,6 @@
     <img src="{{ object.thumbnail.url }}" class="img-fluid" alt="{{ object.title }}">
 
     <p>{{ object.description }}</p>
-    {{course_modules.lessons.all}}
 
     {% if course_modules %}
     <h2>Course Modules:</h2>
@@ -26,7 +25,7 @@
                 <strong>
                     <ol>
                         {% for lesson in course_module.lessons.all %}
-                            <li>{{ lesson.title }}</li>
+                            <li><a href='{% url "lessons:lesson_detail" object.slug course_module.id lesson.id %}'>{{ lesson.title }}</a></li>
                         {% endfor %}
                     </ol>
                     </strong>

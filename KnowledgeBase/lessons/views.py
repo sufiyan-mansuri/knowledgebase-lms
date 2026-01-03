@@ -115,7 +115,41 @@ class LessonDeleteView(DeleteView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
     
+class LessonDetailView(DetailView):
+    model = Lesson 
+    template_name = 'lessons/lesson_detail.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.module = get_object_or_404(Module, id=kwargs['module_id'], course=self.course)
 
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        return Lesson.objects.filter(module=self.module)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        lesson = self.object
+        
+        context["course"] = self.course
+        context["module"] = self.module
+        context["previous_lesson"] = (
+            Lesson.objects
+            .filter(module=self.module, order__lt = lesson.order)
+            .order_by('-order')
+            .first()
+        )
+        context["next_lesson"] = (
+            Lesson.objects
+            .filter(module=self.module, order__gt = lesson.order)
+            .order_by('order')
+            .first()
+        )
+
+        return context
+    
+
+    
 
     

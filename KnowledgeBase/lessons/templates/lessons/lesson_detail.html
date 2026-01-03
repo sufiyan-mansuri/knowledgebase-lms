@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ object.title }}</h1>
+
+<p>{{ object.content }}</p>
+<a href="{{object.video_url}}">Video Lecture</a>
+<div>
+    {% if previous_lesson %}
+        <a class="btn btn-primary" href='{% url "lessons:lesson_detail" course.slug module.id previous_lesson.id %}'>Previous Lesson</a>
+    {% endif %}
+    {% if next_lesson %}
+        <a class="btn btn-primary" href='{% url "lessons:lesson_detail" course.slug module.id next_lesson.id %}'>Next Lesson</a>
+    {% endif %}
+</div>
+{% endblock content %}
+

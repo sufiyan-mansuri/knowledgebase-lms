@@ -12,6 +12,7 @@
                 <h5 class="card-title">{{ published_course.title }}</h5>
                 <p class="card-text">{{ published_course.description }}</p>
                 <a href='{% url "courses:course_detail" published_course.slug %}' class="btn btn-primary">Course Details</a>
+                <a href='{% url "courses:course_detail" published_course.slug %}' class="btn btn-success">Enroll</a>
             </div>
         </div>
     {% endfor %}
