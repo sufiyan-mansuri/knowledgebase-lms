@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
+from progress.models import LessonProgress
 
 class CourseListView(ListView):
     model = Course
@@ -28,6 +29,10 @@ class CourseDetailView(DetailView):
             student=self.user
         ).exists()
 
+        if self.is_user_enrolled:
+            self.course_lessons = Lesson.objects.filter(module__course=self.course).count()
+            self.user_completed_lessons = LessonProgress.objects.filter(student=self.user, lesson__module__course=self.course, is_completed=True).count()
+
         return super().dispatch(request, *args, **kwargs) 
     
 
@@ -35,6 +40,12 @@ class CourseDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["course_modules"] = self.course_modules
         context['is_user_enrolled'] = self.is_user_enrolled 
+       
+        if self.is_user_enrolled:
+            context['course_lessons'] = self.course_lessons
+            context['user_completed_lessons'] = self.user_completed_lessons
+            context['course_progress'] = (self.user_completed_lessons/self.course_lessons)*100 
+
         return context
 
 class CourseCreateView(InstructorRequiredMixin, CreateView):

@@ -3,6 +3,12 @@
 {% block content %}
 
 <h1>{{ object.title }}</h1>
+{% if is_user_enrolled %}
+    <strong>Course Progress: {{ course_progress }}%</strong>   
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: {{course_progress}}%" aria-valuenow="{{ course_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+{% endif %}
 
 <div>
     <img src="{{ object.thumbnail.url }}" class="img-fluid" alt="{{ object.title }}">

@@ -27,6 +27,7 @@ urlpatterns = [
     path('courses/', include('courses.urls')),
     path('lessons/', include('lessons.urls')),
     path('enrollments/', include('enrollments.urls')),
+    path('progress/', include('progress.urls')),
 ]
 
 if settings.DEBUG:

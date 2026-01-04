@@ -13,6 +13,12 @@
     {% if next_lesson %}
         <a class="btn btn-primary" href='{% url "lessons:lesson_detail" course.slug module.id next_lesson.id %}'>Next Lesson</a>
     {% endif %}
+
+    {% if progress.is_completed %}
+        <a class="btn btn-success disabled" href="#">Lesson Completed</a>
+    {% else %}
+        <a class="btn btn-success" href='{% url "progress:mark_lesson_as_complete" course.slug module.id object.id %}'>Mark As Complete</a>
+    {% endif %}
 </div>
 {% endblock content %}
 

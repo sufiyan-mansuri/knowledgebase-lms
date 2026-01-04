@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
+from progress.models import LessonProgress
 
 # Create your views here. 
 class ModuleLessonListView(InstructorRequiredMixin, ListView):
@@ -124,10 +125,15 @@ class LessonDetailView(DetailView):
         self.user = request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.module = get_object_or_404(Module, id=kwargs['module_id'], course=self.course)
+        self.progress = LessonProgress.objects.filter(lesson=self.get_object(), student=self.user).first()
+
         self.is_user_enrolled = Enrollment.objects.filter(
             course=self.course,
             student=self.user
         ).exists()
+
+        if self.is_user_enrolled:
+            progress, _ = LessonProgress.objects.get_or_create(student=self.user, lesson=self.get_object())
 
         if not (self.is_user_enrolled or self.user.is_superuser):
             raise PermissionDenied
@@ -143,6 +149,7 @@ class LessonDetailView(DetailView):
         
         context["course"] = self.course
         context["module"] = self.module
+        context["progress"] = self.progress
         context["previous_lesson"] = (
             Lesson.objects
             .filter(module=self.module, order__lt = lesson.order)
