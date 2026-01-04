@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'lessons',
     'quizzes',
     'dashboard',
+    'progress', 
 ]
 
 AUTH_USER_MODEL = 'users.User'
