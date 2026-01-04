@@ -22,12 +22,16 @@
             <div id="{{ course_module.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                 {% if course_module.lessons.all %}
-                <strong>
-                    <ol>
-                        {% for lesson in course_module.lessons.all %}
-                            <li><a href='{% url "lessons:lesson_detail" object.slug course_module.id lesson.id %}'>{{ lesson.title }}</a></li>
-                        {% endfor %}
-                    </ol>
+                    <strong>
+                        <ol>
+                            {% for lesson in course_module.lessons.all %}
+                                {% if is_user_enrolled or user.is_superuser %}
+                                    <li><a href='{% url "lessons:lesson_detail" object.slug course_module.id lesson.id %}'>{{ lesson.title }}</a></li>
+                                {% else %}
+                                    <li><span>{{lesson.title}}  🔒</span></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ol>
                     </strong>
                 {% else %}
                     <strong>No lessons added for this module.</strong>

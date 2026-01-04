@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.db import IntegrityError
 from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
+from enrollments.models import Enrollment
 
 # Create your views here. 
 class ModuleLessonListView(InstructorRequiredMixin, ListView):
@@ -120,8 +121,16 @@ class LessonDetailView(DetailView):
     template_name = 'lessons/lesson_detail.html'
 
     def dispatch(self, request, *args, **kwargs):
+        self.user = request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.module = get_object_or_404(Module, id=kwargs['module_id'], course=self.course)
+        self.is_user_enrolled = Enrollment.objects.filter(
+            course=self.course,
+            student=self.user
+        ).exists()
+
+        if not (self.is_user_enrolled or self.user.is_superuser):
+            raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
     

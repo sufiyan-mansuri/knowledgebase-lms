@@ -12,7 +12,9 @@
                 <h5 class="card-title">{{ published_course.title }}</h5>
                 <p class="card-text">{{ published_course.description }}</p>
                 <a href='{% url "courses:course_detail" published_course.slug %}' class="btn btn-primary">Course Details</a>
-                <a href='{% url "courses:course_detail" published_course.slug %}' class="btn btn-success">Enroll</a>
+                {% if not published_course.id in user_enrolled_courses %}
+                    <a href='{% url "enrollments:enroll" published_course.slug %}' class="btn btn-success">Enroll</a>   
+                {% endif %}
             </div>
         </div>
     {% endfor %}

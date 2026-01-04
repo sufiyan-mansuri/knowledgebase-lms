@@ -9,8 +9,12 @@ from users.decorators import allowed_users
 @allowed_users(['Students'])
 def enroll(request, slug):
     user = request.user 
-    course = get_object_or_404(slug=slug)
-    Enrollment.objects.get_or_create(course=course, student=user)
+    course = get_object_or_404(Course, slug=slug)
     
+    if course.status == "published" and course.instructor != user:
+        Enrollment.objects.get_or_create(course=course, student=user)
+    else:
+        PermissionDenied
+
     return redirect('courses:course_detail', slug=course.slug)
 

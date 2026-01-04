@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from django.db import IntegrityError
 from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
+from enrollments.models import Enrollment
 
 class CourseListView(ListView):
     model = Course
@@ -15,17 +16,25 @@ class CourseListView(ListView):
 
 class CourseDetailView(DetailView):
     model = Course
-    template_name = 'courses/course_detail.html'
+    template_name = 'courses/course_detail.html' 
 
     def dispatch(self, request, *args, **kwargs):
+        self.user = request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.course_modules = Module.objects.filter(course=self.course).prefetch_related('lessons')
 
+        self.is_user_enrolled = Enrollment.objects.filter(
+            course=self.course,
+            student=self.user
+        ).exists()
+
         return super().dispatch(request, *args, **kwargs) 
+    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["course_modules"] = self.course_modules 
+        context["course_modules"] = self.course_modules
+        context['is_user_enrolled'] = self.is_user_enrolled 
         return context
 
 class CourseCreateView(InstructorRequiredMixin, CreateView):
