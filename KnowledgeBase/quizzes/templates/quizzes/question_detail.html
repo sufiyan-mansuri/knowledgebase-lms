@@ -25,8 +25,8 @@
                 <td>{{ question_option.is_correct }}</td>
                 <td>{{ question_option.order }}</td>
                 <td>
-                  <a class="btn btn-warning" href='' role="button">Edit</a>
-                  <a class="btn btn-danger" href='' role="button">Delete</a>
+                  <a class="btn btn-warning" href='{% url "quizzes:option_update" object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id question_option.id %}' role="button">Edit</a>
+                  <a class="btn btn-danger" href='{% url "quizzes:option_delete" object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id question_option.id %}' role="button">Delete</a>
                 </td>
             </tr>
         {% endfor %}

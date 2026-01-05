@@ -233,8 +233,70 @@ class OptionCreateView(CreateView):
             'quiz_id': self.question.quiz.id,
             'question_id': self.question.id,
         })
+
+class OptionUpdateView(UpdateView):
+    model = Option
+    fields = ['option', 'is_correct', 'order']
+    template_name = 'quizzes/question_form.html'
+    extra_context = {'page_title': 'Update Option', 'button_info': 'Update Option'}
+
+    def dispatch(self, request, *args, **kwargs):
+        self.question = get_object_or_404(
+            Question, 
+            id=kwargs['question_id'],
+            quiz__id = self.kwargs['quiz_id'],
+            quiz__lesson__id=self.kwargs['lesson_id'],
+            quiz__lesson__module__id=self.kwargs['module_id'],
+            quiz__lesson__module__course__slug=self.kwargs['slug'],
+        )
+        return super().dispatch(request, *args, **kwargs)
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['question_options'] = self.object.options.all()
-        return context
+    def get_queryset(self):
+        return Option.objects.filter(
+            id=self.kwargs['pk'],
+            question=self.question
+        )
+
+    def form_valid(self, form):
+        form.instance.question = self.question
+        return super().form_valid(form) 
+    
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('quizzes:question_detail', kwargs={
+            'slug': self.question.quiz.lesson.module.course.slug,
+            'module_id': self.question.quiz.lesson.module.id,
+            'lesson_id': self.question.quiz.lesson.id,
+            'quiz_id': self.question.quiz.id,
+            'question_id': self.question.id,
+        })
+
+class OptionDeleteView(DeleteView):
+    model = Option
+    template_name = 'quizzes/option_confirm_delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.question = get_object_or_404(
+            Question, 
+            id=kwargs['question_id'],
+            quiz__id = self.kwargs['quiz_id'],
+            quiz__lesson__id=self.kwargs['lesson_id'],
+            quiz__lesson__module__id=self.kwargs['module_id'],
+            quiz__lesson__module__course__slug=self.kwargs['slug'],
+        )
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        return Option.objects.filter(
+            id=self.kwargs['pk'],
+            question=self.question
+        )
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('quizzes:question_detail', kwargs={
+            'slug': self.question.quiz.lesson.module.course.slug,
+            'module_id': self.question.quiz.lesson.module.id,
+            'lesson_id': self.question.quiz.lesson.id,
+            'quiz_id': self.question.quiz.id,
+            'question_id': self.question.id,
+        })
+

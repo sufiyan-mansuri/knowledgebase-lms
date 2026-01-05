@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import QuizDetailView, QuizCreateView, QuizUpdateView, QuizDeleteView, QuestionCreateView, QuestionUpdateView, QuestionDeleteView, QuestionDetailView, OptionCreateView
+from .views import QuizDetailView, QuizCreateView, QuizUpdateView, QuizDeleteView, QuestionCreateView, QuestionUpdateView, QuestionDeleteView, QuestionDetailView, OptionCreateView, OptionUpdateView, OptionDeleteView
 
 app_name = "quizzes"
 
@@ -15,4 +15,6 @@ urlpatterns = [
     path('<slug:slug>/module/<int:module_id>/lessons/<int:lesson_id>/quiz/<int:quiz_id>/questions/<int:question_id>', QuestionDetailView.as_view(), name='question_detail'),
     
     path('<slug:slug>/module/<int:module_id>/lessons/<int:lesson_id>/quiz/<int:quiz_id>/questions/<int:question_id>/options/create', OptionCreateView.as_view(), name='option_create'),
+    path('<slug:slug>/module/<int:module_id>/lessons/<int:lesson_id>/quiz/<int:quiz_id>/questions/<int:question_id>/options/<int:pk>/update', OptionUpdateView.as_view(), name='option_update'),
+    path('<slug:slug>/module/<int:module_id>/lessons/<int:lesson_id>/quiz/<int:quiz_id>/questions/<int:question_id>/options/<int:pk>/delete', OptionDeleteView.as_view(), name='option_delete'),
 ]
