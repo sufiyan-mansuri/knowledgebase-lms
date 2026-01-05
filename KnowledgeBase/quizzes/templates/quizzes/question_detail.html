@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Question Detail: {{ object.question }}</h1>
+<div>
+    <a class="btn btn-primary" href="{% url 'quizzes:option_create' object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id %}">Add Option</a><strong>(minimum 2)</strong>
+</div>
+
+<h2>Options</h2>
+<table class="table table-hover">
+  <thead>
+    <th>Sr No.</th>
+    <th>Option</th>
+    <th>Is Correct</th>
+    <th>Order</th>
+    <th>Actions</th>
+  </thead>
+  <tbody>
+    {% if question_options %}
+        {% for question_option in question_options  %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ question_option.option }}</td>
+                <td>{{ question_option.is_correct }}</td>
+                <td>{{ question_option.order }}</td>
+                <td>
+                  <a class="btn btn-warning" href='' role="button">Edit</a>
+                  <a class="btn btn-danger" href='' role="button">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan='5'>No options created for this question.</td>
+        </tr>
+    {% endif %}
+  </tbody>
+</table>
+
+{% endblock content %}

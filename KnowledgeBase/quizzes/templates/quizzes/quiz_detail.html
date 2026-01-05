@@ -6,10 +6,44 @@
     <h1>Quiz Detail: {{ object.lesson.title }}</h1>
     <a href="{% url 'quizzes:quiz_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Edit Quiz</a>
     <a href="{% url 'quizzes:quiz_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-danger">Delete Quiz</a>
-    <a href="#" class="btn btn-primary">Add Question</a>
+    <a href="{% url 'quizzes:question_create' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id %}" class="btn btn-primary">Add Question</a>
 </div>
 
 <strong>Total Marks: {{ object.total_marks }}</strong>
+
+<h1>Questions</h1>
+
+<table class="table table-hover">
+  <thead>
+    <th>Sr No.</th>
+    <th>Question</th>
+    <th>Marks</th>
+    <th>Order</th>
+    <th>Options</th>
+    <th>Actions</th>
+  </thead>
+  <tbody>
+    {% if quiz_questions %}
+        {% for quiz_question in quiz_questions  %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ quiz_question.question }}</td>
+                <td>{{ quiz_question.marks }}</td>
+                <td>{{ quiz_question.order }}</td>
+                <td><a class="btn btn-success" href='{% url "quizzes:question_detail" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}'>View Options</a></td>
+                <td>
+                  <a class="btn btn-warning" href='{% url "quizzes:question_update" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Edit</a>
+                  <a class="btn btn-danger" href='{% url "quizzes:question_delete" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan='5'>No questions created for this quiz.</td>
+        </tr>
+    {% endif %}
+  </tbody>
+</table>
 
 {% endblock content %}
 
