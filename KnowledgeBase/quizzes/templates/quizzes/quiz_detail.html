@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+    <h1>Quiz Detail: {{ object.lesson.title }}</h1>
+    <a href="{% url 'quizzes:quiz_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Edit Quiz</a>
+    <a href="{% url 'quizzes:quiz_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-danger">Delete Quiz</a>
+    <a href="#" class="btn btn-primary">Add Question</a>
+</div>
+
+<strong>Total Marks: {{ object.total_marks }}</strong>
+
+{% endblock content %}
+

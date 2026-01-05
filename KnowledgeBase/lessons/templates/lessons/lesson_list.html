@@ -24,6 +24,11 @@
                 <td>
                   <a class="btn btn-warning" href='{% url "lessons:lesson_update" course.slug module.id lesson.id %}' role="button">Edit</a>
                   <a class="btn btn-danger" href='{% url "lessons:lesson_delete" course.slug module.id lesson.id %}' role="button">Delete</a>
+                  {% if lesson.quizzes %}
+                    <a class="btn btn-success" href='{% url "quizzes:quiz_detail" course.slug module.id lesson.id %}' role="button">Manage Quiz</a>
+                  {% else %}
+                    <a class="btn btn-success" href='{% url "quizzes:quiz_create" course.slug module.id lesson.id %}' role="button">Create Quiz</a>
+                  {% endif %}
                 </td>
             </tr>
         {% endfor %}

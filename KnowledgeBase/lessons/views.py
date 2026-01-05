@@ -8,6 +8,7 @@ from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
 from progress.models import LessonProgress
+from quizzes.models import Quiz, Question, Option
 
 # Create your views here. 
 class ModuleLessonListView(InstructorRequiredMixin, ListView):
