@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
 from progress.models import LessonProgress, QuizAttempt
 from quizzes.models import Quiz, Question, Option
+from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin
 
 # Create your views here. 
 class ModuleLessonListView(InstructorRequiredMixin, ListView):
@@ -118,7 +119,7 @@ class LessonDeleteView(DeleteView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
     
-class LessonDetailView(DetailView):
+class LessonDetailView(StudentRequiredMixin, EnrollmentRequiredMixin, DetailView):
     model = Lesson 
     template_name = 'lessons/lesson_detail.html'
 

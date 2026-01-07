@@ -9,11 +9,21 @@ from .forms import QuizAttemptForm
 from progress.models import QuizAttempt, StudentAnswer
 from enrollments.models import Enrollment
 from core.mixins import InstructorRequiredMixin
+from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin, AttemptOwnershipMixin, CourseOwnerRequiredMixin, QuizEditableMixin
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
-class QuizDetailView(DetailView):
+class QuizDetailView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    DetailView
+    ):
     model = Quiz
     template_name = 'quizzes/quiz_detail.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self):
         lesson = get_object_or_404(
@@ -30,7 +40,12 @@ class QuizDetailView(DetailView):
         context['quiz_questions'] = self.object.questions.all()
         return context
 
-class QuizCreateView(InstructorRequiredMixin, CreateView):
+class QuizCreateView(
+    InstructorRequiredMixin, 
+    CourseOwnerRequiredMixin, 
+    CreateView,
+    ):
+
     model = Quiz
     fields = ['total_marks']
     extra_context = {'page_title': 'Create Quiz', 'button_info': 'Create Quiz'}
@@ -38,6 +53,7 @@ class QuizCreateView(InstructorRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.lesson = get_object_or_404(Lesson, id=kwargs['lesson_id'], module__id=kwargs['module_id'], module__course__slug=kwargs['slug'])
+        self.course = self.lesson.module.course
 
         if Quiz.objects.filter(lesson=self.lesson).exists():
             return redirect(
@@ -60,11 +76,22 @@ class QuizCreateView(InstructorRequiredMixin, CreateView):
             'lesson_id': self.lesson.id,
         })
 
-class QuizUpdateView(UpdateView):
+class QuizUpdateView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    UpdateView,
+    ):
     model = Quiz
     extra_context = {'page_title': 'Update Quiz', 'button_info': 'Update Quiz'}
     fields = ['total_marks', 'status']
     template_name = 'quizzes/quiz_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.quiz = self.get_object()
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self):
         self.lesson = get_object_or_404(
@@ -100,9 +127,20 @@ class QuizUpdateView(UpdateView):
             'lesson_id': self.lesson.id,
         })
 
-class QuizDeleteView(DeleteView):
+class QuizDeleteView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    DeleteView
+    ):
     model = Quiz
     template_name = 'quizzes/quiz_confirm_delete.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.quiz = self.get_object()
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self):
         self.lesson = get_object_or_404(
@@ -120,13 +158,19 @@ class QuizDeleteView(DeleteView):
             'module_id': self.lesson.module.id
         })
     
-class QuestionCreateView(CreateView):
+class QuestionCreateView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    CreateView
+    ):
     model = Question
     fields = ['question', 'marks', 'order']
     template_name = 'quizzes/question_form.html'
     extra_context = {'page_title': 'Create Question', 'button_info': 'Create Question'}
 
     def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.quiz = get_object_or_404(
             Quiz, 
             id=kwargs['quiz_id'],
@@ -147,13 +191,19 @@ class QuestionCreateView(CreateView):
             'lesson_id': self.quiz.lesson.id,
         })
     
-class QuestionUpdateView(UpdateView):
+class QuestionUpdateView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    UpdateView
+    ):
     model = Question
     fields = ['question', 'marks', 'order']
     template_name = 'quizzes/question_form.html'
     extra_context = {'page_title': 'Update Question', 'button_info': 'Update Question'}
 
     def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.quiz = get_object_or_404(
             Quiz, 
             id=kwargs['quiz_id'],
@@ -180,11 +230,17 @@ class QuestionUpdateView(UpdateView):
             'lesson_id': self.quiz.lesson.id,
         })
 
-class QuestionDeleteView(DeleteView):
+class QuestionDeleteView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    DeleteView
+    ):
     model = Question
     template_name = 'quizzes/question_confirm_delete.html'
 
     def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.quiz = get_object_or_404(
             Quiz, 
             id=kwargs['quiz_id'],
@@ -207,9 +263,19 @@ class QuestionDeleteView(DeleteView):
             'lesson_id': self.quiz.lesson.id,
         })
     
-class QuestionDetailView(DetailView):
+class QuestionDetailView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    DetailView
+    ):
     model = Question
     template_name = 'quizzes/question_detail.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.quiz = get_object_or_404(Quiz, id=kwargs['quiz_id'])
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self):
         return get_object_or_404(
@@ -225,13 +291,21 @@ class QuestionDetailView(DetailView):
         context['question_options'] = self.object.options.all()
         return context
     
-class OptionCreateView(CreateView):
+class OptionCreateView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    CreateView
+    ):
     model = Option
     fields = ['option', 'is_correct', 'order']
     template_name = 'quizzes/option_form.html'
     extra_context = {'page_title': 'Create Option', 'button_info': 'Create Option'}
 
     def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.quiz = get_object_or_404(Quiz, id=kwargs['quiz_id'])
+
         self.question = get_object_or_404(
             Question, 
             id=kwargs['question_id'],
@@ -255,13 +329,21 @@ class OptionCreateView(CreateView):
             'question_id': self.question.id,
         })
 
-class OptionUpdateView(UpdateView):
+class OptionUpdateView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    UpdateView
+    ):
     model = Option
     fields = ['option', 'is_correct', 'order']
     template_name = 'quizzes/question_form.html'
     extra_context = {'page_title': 'Update Option', 'button_info': 'Update Option'}
 
     def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.quiz = get_object_or_404(Quiz, id=kwargs['quiz_id'])
+
         self.question = get_object_or_404(
             Question, 
             id=kwargs['question_id'],
@@ -291,11 +373,19 @@ class OptionUpdateView(UpdateView):
             'question_id': self.question.id,
         })
 
-class OptionDeleteView(DeleteView):
+class OptionDeleteView(
+    InstructorRequiredMixin,
+    CourseOwnerRequiredMixin,
+    QuizEditableMixin,
+    DeleteView
+    ):
     model = Option
     template_name = 'quizzes/option_confirm_delete.html'
 
     def dispatch(self, request, *args, **kwargs):
+        self.course = get_object_or_404(Course, slug=kwargs['slug'])
+        self.quiz = get_object_or_404(Quiz, id=kwargs['quiz_id'])
+
         self.question = get_object_or_404(
             Question, 
             id=kwargs['question_id'],
@@ -321,7 +411,7 @@ class OptionDeleteView(DeleteView):
             'question_id': self.question.id,
         })
 
-class QuizAttemptView(FormView):
+class QuizAttemptView(StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
     template_name = 'quizzes/quiz_attempt.html'
     form_class = QuizAttemptForm
 
@@ -337,11 +427,12 @@ class QuizAttemptView(FormView):
         self.course = self.lesson.module.course
         self.user = request.user
 
-        if not Enrollment.objects.filter(course=self.course, student=self.user).exists():
-            return redirect('courses:course_detail', slug=self.course.slug)
-        
-        if not self.course.status:
-            return redirect('courses:course_detail', slug=self.course.slug)
+        if self.quiz.status not in ['active', 'locked']:
+            raise PermissionDenied
+
+        quiz_attempt = QuizAttempt.objects.filter(student=self.user, quiz=self.quiz).first()
+        if quiz_attempt:
+            return redirect('quizzes:quiz_result', self.quiz.lesson.module.course.slug, self.quiz.lesson.module.id, self.quiz.lesson.id, quiz_attempt.id)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -386,10 +477,10 @@ class QuizAttemptView(FormView):
 
         return redirect('quizzes:quiz_result', self.quiz.lesson.module.course.slug, self.quiz.lesson.module.id, self.quiz.lesson.id, attempt.id)
     
-class QuizResultView(DetailView):
+class QuizResultView(StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
     model = QuizAttempt
     template_name = 'quizzes/quiz_result.html'
 
-class QuizOverviewPage(DetailView):
+class QuizOverviewPage(StudentRequiredMixin, DetailView):
     model = Quiz
     template_name = 'quizzes/quiz_overview.html'
