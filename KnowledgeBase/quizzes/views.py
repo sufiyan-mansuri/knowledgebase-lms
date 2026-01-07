@@ -63,7 +63,7 @@ class QuizCreateView(InstructorRequiredMixin, CreateView):
 class QuizUpdateView(UpdateView):
     model = Quiz
     extra_context = {'page_title': 'Update Quiz', 'button_info': 'Update Quiz'}
-    fields = ['total_marks']
+    fields = ['total_marks', 'status']
     template_name = 'quizzes/quiz_form.html'
 
     def get_object(self):
@@ -75,6 +75,23 @@ class QuizUpdateView(UpdateView):
         )
 
         return self.lesson.quizzes
+
+    def form_valid(self, form):
+        quiz = form.instance
+
+        if quiz.status == 'locked':
+            form.add_error(None, 'This quiz is locked and cannot be modified.')
+            return self.form_invalid(form)
+        
+        if quiz.status == 'active':
+            questions = self.object.questions.all()
+            total = sum(question.marks for question in questions)
+
+            if total != quiz.total_marks:
+                form.add_error('status', 'Total marks of questions must exactly match quiz total marks.')
+                return self.form_invalid(form)
+
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('quizzes:quiz_detail', kwargs={
@@ -358,10 +375,14 @@ class QuizAttemptView(FormView):
             )
 
             if selected_option.is_correct:
-                score += 1
+                score += question.marks
             
         attempt.score = score 
         attempt.save()
+
+        if self.quiz.status == 'active':
+            self.quiz.status = 'locked'
+            self.quiz.save()
 
         return redirect('quizzes:quiz_result', self.quiz.lesson.module.course.slug, self.quiz.lesson.module.id, self.quiz.lesson.id, attempt.id)
     

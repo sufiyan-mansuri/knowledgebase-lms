@@ -4,9 +4,14 @@
 
 <div>
     <h1>Quiz Detail: {{ object.lesson.title }}</h1>
-    <a href="{% url 'quizzes:quiz_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Edit Quiz</a>
-    <a href="{% url 'quizzes:quiz_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-danger">Delete Quiz</a>
-    <a href="{% url 'quizzes:question_create' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id %}" class="btn btn-primary">Add Question</a>
+
+    {% if object.status != 'locked' %}
+      <a href="{% url 'quizzes:quiz_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Edit Quiz</a>
+      <a href="{% url 'quizzes:question_create' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id %}" class="btn btn-primary">Add Question</a>
+      <a href="{% url 'quizzes:quiz_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-danger">Delete Quiz</a>
+    {% else %}
+      <p style='color: red'>This quiz has been attempted by students enrolled in this course, So it cannot be edited.</p>
+    {% endif %}
 </div>
 
 <strong>Total Marks: {{ object.total_marks }}</strong>
@@ -32,8 +37,12 @@
                 <td>{{ quiz_question.order }}</td>
                 <td><a class="btn btn-success" href='{% url "quizzes:question_detail" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}'>View Options</a></td>
                 <td>
-                  <a class="btn btn-warning" href='{% url "quizzes:question_update" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Edit</a>
-                  <a class="btn btn-danger" href='{% url "quizzes:question_delete" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Delete</a>
+                  {% if object.status != 'locked' %}
+                    <a class="btn btn-warning" href='{% url "quizzes:question_update" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Edit</a>
+                    <a class="btn btn-danger" href='{% url "quizzes:question_delete" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Delete</a>
+                  {% else %}
+                      <p>Quiz is in locked state.</p>
+                  {% endif %}
                 </td>
             </tr>
         {% endfor %}
