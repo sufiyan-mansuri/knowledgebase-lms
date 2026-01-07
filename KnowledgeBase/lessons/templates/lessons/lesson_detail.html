@@ -3,7 +3,6 @@
 {% block content %}
 
 <h1>{{ object.title }}</h1>
-
 <p>{{ object.content }}</p>
 <a href="{{object.video_url}}">Video Lecture</a>
 <div>
@@ -16,6 +15,13 @@
 
     {% if progress.is_completed %}
         <a class="btn btn-success disabled" href="#">Lesson Completed</a>
+        {% if quiz %}
+            {% if quiz_attempt %}
+                <a class="btn btn-success" href='{% url "quizzes:quiz_result" object.module.course.slug object.module.id object.id quiz_attempt.id %}'>View Score</a>
+            {% else %}
+                <a class="btn btn-warning" href='{% url "quizzes:quiz_overview" object.module.course.slug object.module.id object.id object.quizzes.id %}'>Attempt Quiz</a>
+            {% endif %}
+        {% endif %}
     {% else %}
         <a class="btn btn-success" href='{% url "progress:mark_lesson_as_complete" course.slug module.id object.id %}'>Mark As Complete</a>
     {% endif %}

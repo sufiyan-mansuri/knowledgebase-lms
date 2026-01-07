@@ -7,7 +7,7 @@ from django.db import IntegrityError
 from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
-from progress.models import LessonProgress
+from progress.models import LessonProgress, QuizAttempt
 from quizzes.models import Quiz, Question, Option
 
 # Create your views here. 
@@ -127,6 +127,12 @@ class LessonDetailView(DetailView):
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.module = get_object_or_404(Module, id=kwargs['module_id'], course=self.course)
         self.progress = LessonProgress.objects.filter(lesson=self.get_object(), student=self.user).first()
+        
+        self.quiz = Quiz.objects.filter(
+            lesson=self.get_object(),
+            lesson__module__id=self.module.id,
+            lesson__module__course__slug=self.course.slug,
+        ).first()        
 
         self.is_user_enrolled = Enrollment.objects.filter(
             course=self.course,
@@ -147,7 +153,7 @@ class LessonDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         lesson = self.object
-        
+
         context["course"] = self.course
         context["module"] = self.module
         context["progress"] = self.progress
@@ -163,6 +169,15 @@ class LessonDetailView(DetailView):
             .order_by('order')
             .first()
         )
+
+        context['quiz'] = self.quiz
+        context['quiz_attempt'] = None
+
+        if self.quiz:
+            context['quiz_attempt'] = QuizAttempt.objects.filter(
+                quiz=self.quiz,
+                student=self.user
+            ).first()
 
         return context
     

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Quiz Overview</h1>
+
+<ul>
+    <li>Lesson: {{ object.lesson.title }}</li>
+    <li>Total Marks: {{ object.total_marks }}</li>
+    <li>Total Questions: {{ object.questions.all.count }}</li>
+</ul>
+<a href="{% url "quizzes:quiz_attempt" object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Start Quiz</a>
+<p>Note: There is no time restriction on quiz but you will only get one attempt for this quiz. Good luck.</p>
+
+{% endblock content %}
