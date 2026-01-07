@@ -3,8 +3,15 @@ from lessons.models import Lesson
 
 # Create your models here.
 class Quiz(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('active', 'Active'),
+        ('locked', 'Locked'),
+    )
+
     lesson = models.OneToOneField(Lesson, on_delete=models.CASCADE, related_name='quizzes')
     total_marks = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
