@@ -2,7 +2,52 @@
 
 {% block content %}
 
-<h1>Welcome Student, {{ user.username }}</h1>
-<p><a href="{% url 'logout' %}">Logout</a></p>
+<h1>Welcome Student, {{ user.username }}</h1><br>
+
+{% if enrolled_course_details %}
+    <h2>Enrolled Courses:</h2>
+    <div class="row">
+        {% for enrolled_course_detail in enrolled_course_details %}
+            <div class="card" style="width: 18rem;">
+                <img src="{{ enrolled_course_detail.course.thumbnail.url }}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{ enrolled_course_detail.course.title }}</h5>
+                    <strong>{{ enrolled_course_detail.course.instructor }}</strong>
+                    <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="{{ enrolled_course_detail.user_progress }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: {{enrolled_course_detail.user_progress}}%">{{enrolled_course_detail.user_progress}}%</div>
+                    </div><br>
+                    <a href="{% url 'courses:course_detail' enrolled_course_detail.course.slug %}" class="btn btn-primary">Continue Learning</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div><br>
+{% endif %}
+
+<h2>Recent Quiz Results:</h2>
+<table class="table table-hover">
+  <thead>
+    <th>Sr No.</th>
+    <th>Quiz</th>
+    <th>Course</th>
+    <th>Score</th>
+    <th>Action</th>
+  </thead>
+  <tbody>
+    {% if quiz_attempts %}
+        {% for quiz_attempt in quiz_attempts  %}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ quiz_attempt.quiz.lesson.title }}</td>
+            <td>{{ quiz_attempt.quiz.lesson.module.course.title }}</td>
+            <td>{{ quiz_attempt.score }}</td>
+            <td><a class="btn btn-success" href="{% url 'quizzes:quiz_result' quiz_attempt.quiz.lesson.module.course.slug quiz_attempt.quiz.lesson.module.id quiz_attempt.quiz.lesson.id quiz_attempt.id %}">View Score</a><td>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan=5>No quiz attempted recently</td>
+        </tr>
+    {% endif %}
+  </tbody>
+</table>
+
 
 {% endblock content %}

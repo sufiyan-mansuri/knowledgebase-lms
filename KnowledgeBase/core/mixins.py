@@ -17,7 +17,7 @@ class StudentRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         user = request.user
 
-        if not user.is_authenticated or user.groups.filter(name='Students').exists():
+        if not (user.is_authenticated or user.groups.filter(name='Students').exists()):
             raise PermissionDenied
         
         return super().dispatch(request, *args, **kwargs)
