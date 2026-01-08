@@ -29,6 +29,9 @@ class QuizAttempt(models.Model):
     class Meta:
         unique_together = ['student', 'quiz']
 
+    def __str__(self):
+        return f'{self.student.username} attempt for {self.quiz.lesson.title}'
+
 class StudentAnswer(models.Model):
     attempt = models.ForeignKey(QuizAttempt, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

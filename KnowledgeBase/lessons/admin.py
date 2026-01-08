@@ -1,5 +1,12 @@
 from django.contrib import admin
 from .models import Lesson
 
-# Register your models here.
-admin.site.register(Lesson)
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'short_content', 'video_url', 'module', 'order', 'created_at', 'updated_at')
+
+    @admin.display(description='Content Preview')
+    def short_content(self, obj):
+        if obj.content and len(obj.content) > 100:
+            return obj.content[:100] + '...'
+        return obj.content
