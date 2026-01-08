@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
-# Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=256, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)

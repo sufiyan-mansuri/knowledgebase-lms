@@ -5,8 +5,9 @@ from django import forms
 
 User = get_user_model()
 
-# Register your models here.
-admin.site.register(models.Category)
+@admin.register(models.Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created_at', 'updated_at')
 
 class CourseAdminForm(forms.ModelForm):
     class Meta:
@@ -20,5 +21,8 @@ class CourseAdminForm(forms.ModelForm):
 @admin.register(models.Course)
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
+    list_display = ('id', 'title', 'description', 'category', 'thumbnail', 'instructor', 'status', 'slug', 'created_at', 'updated_at')
 
-admin.site.register(models.Module)
+@admin.register(models.Module)
+class ModuleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'course', 'order', 'created_at', 'updated_at')

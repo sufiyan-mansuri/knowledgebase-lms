@@ -41,6 +41,20 @@ def student_dashboard(request):
 
 @allowed_users(['Instructors'])
 def instructor_dashboard(request):
+    instructor = request.user
     courses = Course.objects.filter(instructor=request.user.id)
+    
+    course_details = []
+    for course in courses:
+        total_enrollments = Enrollment.objects.filter(course=course, course__instructor=instructor).count()
 
-    return render(request, 'dashboard/instructor_dashboard.html', {'courses': courses})
+        course_details.append({
+            'course': course,
+            'total_enrollments': total_enrollments
+        })
+
+    context = {
+        'course_details': course_details,
+    }
+
+    return render(request, 'dashboard/instructor_dashboard.html', context)
