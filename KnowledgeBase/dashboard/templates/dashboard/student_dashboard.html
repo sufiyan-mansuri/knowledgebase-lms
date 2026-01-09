@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h1>Welcome Student, {{ user.username }}</h1><br>
+<h1>Welcome, {{ user.full_name }}</h1><br>
 
 {% if enrolled_course_details %}
     <h2>Enrolled Courses:</h2>

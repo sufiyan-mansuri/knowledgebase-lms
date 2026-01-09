@@ -5,7 +5,6 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group
 from django.db import transaction
 
-
 # Create your views here.
 def assign_group(user):
     user.groups.clear()
@@ -38,10 +37,16 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
 
-            if user.role == 'instructor':
+            if user.groups.filter(name='Students').exists():
+                return redirect('student_dashboard')
+
+            if user.groups.filter(name='Instructors').exists():
                 return redirect('instructor_dashboard')
             
-            return redirect('student_dashboard')
+            if user.is_superuser:
+                return redirect('/admin/')
+
+            return redirect('home')
     else:
         form = AuthenticationForm(request) 
 

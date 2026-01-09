@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from functools import wraps
+from django.core.exceptions import PermissionDenied
 
 def allowed_users(allowed_roles=[]):
     def decorator(view_func):
@@ -18,7 +19,7 @@ def allowed_users(allowed_roles=[]):
                 if role in allowed_roles:
                     return view_func(request, *args, **kwargs)
             
-            return HttpResponse('You are not authorized to view this page')
+            raise PermissionDenied
             
         return wrapper_func
     return decorator
