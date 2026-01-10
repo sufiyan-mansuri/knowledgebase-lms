@@ -1,56 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>KnowledgeBase - Learning Management System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
-  <body>
-    <header>
-      <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="{% url 'home' %}">KnowledgeBase</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href='{% url "home" %}'>Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href='{% url "course_catalog" %}'>Courses</a>
-              </li>
-              {% if user.is_authenticated %}
-                {% if request.user.role == 'instructor' %}
-                  <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href='{% url "instructor_dashboard" %}'>Dashboard</a>
-                  </li>
-                  {% else %}
-                  <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href='{% url "student_dashboard" %}'>Dashboard</a>
-                  </li>
-                {% endif %}
-                <li class="nav-item">
-                  <a class="nav-link" aria-current="page" href='{% url "logout" %}'>Logout</a>
-                </li>
-              {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" aria-current="page" href='{% url "login" %}'>Login</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" aria-current="page" href='{% url "register" %}'>Register</a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
-        </div>
-      </nav>
-    </header>
-    {% block content %}
+<head>
+<meta charset="UTF-8">
+<title>KnowledgeBase</title>
 
-    {% endblock content %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+:root {
+  --kb-primary: #0F766E;
+  --kb-primary-soft: #CCFBF1;
+  --kb-bg: #F8FAFC;
+  --kb-surface: #FFFFFF;
+  --kb-border: #E2E8F0;
+  --kb-text: #0F172A;
+  --kb-muted: #64748B;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--kb-bg);
+  color: var(--kb-text);
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+.btn-primary:hover {
+  background-color: #115E59;
+}
+
+input.is-invalid {
+  border-color: #dc3545;
+}
+
+/* Cards */
+.card {
+  border: 1px solid var(--kb-border);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 118, 110, 0.04);
+}
+
+/* Navbar */
+.navbar-brand {
+  font-weight: 600;
+}
+
+/* Text */
+.text-muted {
+  color: var(--kb-muted) !important;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Top Navbar -->
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">KnowledgeBase</a>
+
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+        <li class="nav-item"><a class="nav-link" href="{% url 'course_catalog' %}">Courses</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="btn btn-outline-secondary btn-sm px-3" href="{% url 'logout' %}">Logout</a>
+          </li>
+          {% if user.role == 'instructor' %}
+            <li class="nav-item">
+              <a class="btn btn-primary btn-sm px-3" href="{% url 'instructor_dashboard' %}">Dashboard</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="btn btn-primary btn-sm px-3" href="{% url 'student_dashboard' %}">Dashboard</a>
+            </li>
+          {% endif %}
+          
+        {% else %}
+          <li class="nav-item">
+            <a class="btn btn-outline-secondary btn-sm px-3" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-primary btn-sm px-3" href="{% url 'register' %}">Get Started</a>
+          </li>
+        {% endif %}
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content Area -->
+<main class="py-5">
+  <!-- Page content will go here -->
+   {% block content %}
+   
+   {% endblock content %}
+</main>
+
+<!-- Footer -->
+<footer class="border-top bg-white py-4 mt-auto">
+  <div class="container text-center text-muted small">
+    © 2026 KnowledgeBase. All rights reserved.
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
 </html>

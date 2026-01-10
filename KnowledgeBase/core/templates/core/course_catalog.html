@@ -2,22 +2,83 @@
 
 {% block content %}
 
-<h1>Available Courses</h1>
+    <section class="py-5">
+  <div class="container">
 
-{% if published_courses %}
-    {% for published_course in published_courses  %}
-        <div class="card" style="width: 18rem;">
-            <img src="{{ published_course.thumbnail.url }}" class="card-img-top" alt="{{ published_course.title }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ published_course.title }}</h5>
-                <p class="card-text">{{ published_course.description }}</p>
-                <a href='{% url "courses:course_detail" published_course.slug %}' class="btn btn-primary">Course Details</a>
-                {% if not published_course.id in user_enrolled_courses %}
-                    <a href='{% url "enrollments:enroll" published_course.slug %}' class="btn btn-success">Enroll</a>   
-                {% endif %}
-            </div>
+    <!-- Page Header -->
+    <div class="mb-5 text-center">
+      <h1 class="fw-semibold">Explore Courses</h1>
+      <p class="text-muted fs-5">
+        Browse our collection of high-quality courses designed to help you grow.
+      </p>
+    </div>
+
+    <div class="row">
+
+      <!-- Filters Sidebar -->
+      <div class="col-lg-3 mb-4">
+        <div class="card p-4">
+          <h5 class="fw-semibold mb-3">Filter Courses</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select">
+              <option selected>All Categories</option>
+              <option>Web Development</option>
+              <option>Data Science</option>
+              <option>Design</option>
+              <option>Business</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Level</label>
+            <select class="form-select">
+              <option selected>All Levels</option>
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary w-100">Apply Filters</button>
         </div>
-    {% endfor %}
-{% endif %}
+      </div>
+
+      <!-- Courses Grid -->
+      {% if published_courses %}
+      <div class="col-lg-9">
+        <div class="row g-4">
+
+          <!-- Course Card -->
+          {% for published_course in published_courses %}
+          <div class="col-md-6 col-xl-4">
+            <div class="card h-100">
+              <img src="{{ published_course.thumbnail.url }}" class="card-img-top" alt="">
+              <div class="card-body d-flex flex-column">
+                <h5 class="fw-semibold">{{ published_course.title }}</h5>
+                <p class="text-muted small mb-2">Instructor: {{ published_course.instructor.full_name }}</p>
+                <p class="text-muted small flex-grow-1">
+                  {{ published_course.description }}
+                </p>
+                {% if not published_course.id in user_enrolled_courses %}
+                  <a href="{% url "enrollments:enroll" published_course.slug %}" class="btn btn-primary btn-sm mt-auto">Enroll</a>
+                {% else %}
+                  <a href="{% url "courses:course_detail" published_course.slug %}" class="btn btn-primary btn-sm mt-auto">Continue Learning</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+
+
 
 {% endblock content %}

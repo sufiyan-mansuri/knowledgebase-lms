@@ -1,13 +1,91 @@
 {% extends "base.html" %}
+{% load form_tags %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form action="{% url 'register' %}" method='POST'>
-        {% csrf_token %}
-        {{ form.as_p }}
+<div class="card p-4 p-md-5">
+  <div class="text-center mb-4">
+    <h3 class="fw-semibold">Create your account</h3>
+    <p class="text-muted">Start learning with KnowledgeBase</p>
+  </div>
 
-        <button type="submit">Register</button>
-        <a href="{% url 'login' %}">Login</a>
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <div class="mb-3">
+      <label class="form-label">Full Name</label>
+      {% if form.full_name.errors %}
+        {{ form.full_name|add_class:"form-control is-invalid" }}
+        <div class="text-danger small mt-1">
+            {{ form.full_name.errors }}
+        </div>
+      {% else %}
+        {{ form.full_name|add_class:"form-control" }}
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email address</label>
+      {% if form.email.errors %}
+        {{ form.email|add_class:"form-control is-invalid" }}
+        <div class="text-danger small mt-1">
+          {{ form.email.errors }}
+        </div>
+      {% else %}
+        {{ form.email|add_class:"form-control" }}
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      {% if form.password1.errors %}
+        {{ form.password1|add_class:"form-control is-invalid" }}
+        <div class="text-danger small mt-1">
+          {{ form.password1.errors }}
+        </div>
+      {% else %}
+        {{ form.password1|add_class:"form-control" }}
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Confirm Password</label>
+      {% if form.password2.errors %}
+      {{ form.password2|add_class:"form-control is-invalid" }}
+      <div class="text-danger small mt-1">
+          {{ form.password2.errors }}
+        </div>
+      {% else %}
+        {{ form.password2|add_class:"form-control" }}
+      {% endif %}
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">I am a</label>
+      {% if form.role.errors %}
+      {{ form.role|add_class:"form-select is-invalid" }}
+      <div class="text-danger small mt-1">
+          {{ form.role.errors }}
+        </div>
+      {% else %}
+        {{ form.role|add_class:"form-select" }}
+      {% endif %}
+    </div>
+
+    <button class="btn btn-primary w-100 py-2 mb-3">
+      Create Account
+    </button>
+
+    <div class="text-center small">
+      Already have an account?
+      <a href="{% url 'login' %}">Login</a>
+    </div>
+
+  </form>
+</div>
 {% endblock content %}
 
