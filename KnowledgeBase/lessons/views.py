@@ -162,6 +162,8 @@ class LessonDetailView(StudentRequiredMixin, EnrollmentRequiredMixin, DetailView
         context["course"] = self.course
         context["module"] = self.module
         context["progress"] = self.progress
+        context["video_id"] = self.object.video_url.split("/")[-1].split("?")[0]
+
         context["previous_lesson"] = (
             Lesson.objects
             .filter(module=self.module, order__lt = lesson.order)
