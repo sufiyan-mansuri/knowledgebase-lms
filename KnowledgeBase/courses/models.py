@@ -42,7 +42,7 @@ class Course(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.title} - {self.instructor.username}"
+        return f"{self.title} - {self.instructor.full_name}"
     
 class Module(models.Model):
     title = models.CharField(max_length=256)

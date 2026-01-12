@@ -9,6 +9,7 @@ from core.mixins import InstructorRequiredMixin
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
 from progress.models import LessonProgress
+from users.models import User
 
 class CourseListView(ListView):
     model = Course
@@ -30,21 +31,38 @@ class CourseDetailView(DetailView):
         ).exists()
 
         if self.is_user_enrolled:
-            self.course_lessons = Lesson.objects.filter(module__course=self.course).count()
+            self.course_lessons = Lesson.objects.filter(module__course=self.course).count()            
             self.user_completed_lessons = LessonProgress.objects.filter(student=self.user, lesson__module__course=self.course, is_completed=True).count()
+
+            user_lesson_progress = LessonProgress.objects.filter(
+                student = self.user,
+                lesson__module__course = self.course
+            )
+
+            self.user_progress_map = {progress.lesson.id: progress for progress in user_lesson_progress}
 
         return super().dispatch(request, *args, **kwargs) 
     
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["course_modules"] = self.course_modules
         context['is_user_enrolled'] = self.is_user_enrolled 
-       
+
         if self.is_user_enrolled:
-            context['course_lessons'] = self.course_lessons
             context['user_completed_lessons'] = self.user_completed_lessons
             context['course_progress'] = (self.user_completed_lessons/self.course_lessons)*100 
+            context['user_progress_map'] = self.user_progress_map
+            
+            enrollment = Enrollment.objects.filter(
+                course=self.course,
+                student=self.user
+            ).first()
+
+            if enrollment.last_accessed_lesson:
+                context['last_accessed_lesson'] = enrollment.last_accessed_lesson
+            else: 
+                first_lesson = Lesson.objects.filter(module__course=self.course).first()
+                context['last_accessed_lesson'] = first_lesson
 
         return context
 

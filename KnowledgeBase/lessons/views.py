@@ -142,6 +142,10 @@ class LessonDetailView(StudentRequiredMixin, EnrollmentRequiredMixin, DetailView
 
         if self.is_user_enrolled:
             progress, _ = LessonProgress.objects.get_or_create(student=self.user, lesson=self.get_object())
+            Enrollment.objects.filter(
+                student=self.user,
+                course=self.course
+            ).update(last_accessed_lesson=self.get_object())
 
         if not (self.is_user_enrolled or self.user.is_superuser):
             raise PermissionDenied

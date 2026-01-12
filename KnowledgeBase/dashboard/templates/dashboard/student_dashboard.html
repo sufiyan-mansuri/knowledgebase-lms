@@ -2,52 +2,120 @@
 
 {% block content %}
 
-<h1>Welcome, {{ user.full_name }}</h1><br>
+<section class="py-4">
+  <div class="container">
 
-{% if enrolled_course_details %}
-    <h2>Enrolled Courses:</h2>
-    <div class="row">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-semibold mb-1">My Dashboard</h2>
+        <p class="text-muted mb-0">Welcome back, continue your learning journey.</p>
+      </div>
+      <a href="{% url 'course_catalog' %}" class="btn btn-primary">Browse Courses</a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card p-3">
+          <h6 class="text-muted">Enrolled Courses</h6>
+          <h3 class="fw-semibold">{{ total_enrollments }}</h3>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3">
+          <h6 class="text-muted">Completed Lessons</h6>
+          <h3 class="fw-semibold">{{ total_completed_lessons }}</h3>
+        </div>
+      </div>
+    </div>
+
+    {% if enrolled_course_details %}
+    <!-- Enrolled Courses -->
+    <div class="mb-5">
+      <h4 class="fw-semibold mb-3">My Courses</h4>
+
+      <div class="row g-4">
+
         {% for enrolled_course_detail in enrolled_course_details %}
-            <div class="card" style="width: 18rem;">
-                <img src="{{ enrolled_course_detail.course.thumbnail.url }}" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">{{ enrolled_course_detail.course.title }}</h5>
-                    <strong>{{ enrolled_course_detail.course.instructor }}</strong>
-                    <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="{{ enrolled_course_detail.user_progress }}" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: {{enrolled_course_detail.user_progress}}%">{{enrolled_course_detail.user_progress}}%</div>
-                    </div><br>
-                    <a href="{% url 'courses:course_detail' enrolled_course_detail.course.slug %}" class="btn btn-primary">Continue Learning</a>
-                </div>
-            </div>
-        {% endfor %}
-    </div><br>
-{% endif %}
+        <!-- Course Card -->
+        <div class="col-md-6 col-xl-4">
+          <div class="card h-100">
+            <img src="{{ enrolled_course_detail.course.thumbnail.url }}" class="card-img-top" alt="{{ enrolled_course_detail.course.title }}">
+            <div class="card-body d-flex flex-column">
+              <h5 class="fw-semibold">{{ enrolled_course_detail.course.title }}</h5>
+              <p class="text-muted small mb-2">Instructor: {{ enrolled_course_detail.course.instructor.full_name }}</p>
 
-<h2>Recent Quiz Results:</h2>
-<table class="table table-hover">
-  <thead>
-    <th>Sr No.</th>
-    <th>Quiz</th>
-    <th>Course</th>
-    <th>Score</th>
-    <th>Action</th>
-  </thead>
-  <tbody>
-    {% if quiz_attempts %}
-        {% for quiz_attempt in quiz_attempts  %}
-            <td>{{ forloop.counter }}</td>
-            <td>{{ quiz_attempt.quiz.lesson.title }}</td>
-            <td>{{ quiz_attempt.quiz.lesson.module.course.title }}</td>
-            <td>{{ quiz_attempt.score }}</td>
-            <td><a class="btn btn-success" href="{% url 'quizzes:quiz_result' quiz_attempt.quiz.lesson.module.course.slug quiz_attempt.quiz.lesson.module.id quiz_attempt.quiz.lesson.id quiz_attempt.id %}">View Score</a><td>
+              <!-- Progress -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span>Progress</span>
+                  <span>{{ enrolled_course_detail.user_progress }}%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar" style="width: {{ enrolled_course_detail.user_progress }}%; background: var(--kb-primary);"></div>
+                </div>
+              </div>
+
+              <a href="{% url 'courses:course_detail' enrolled_course_detail.course.slug %}" class="btn btn-primary btn-sm mt-auto">Continue Learning</a>
+            </div>
+          </div>
+        </div>
         {% endfor %}
+
+      </div>
+    </div>
     {% else %}
-        <tr>
-            <td colspan=5>No quiz attempted recently</td>
-        </tr>
+        <div class="card p-4 text-center">
+            <h5 class="fw-semibold">You are not enrolled in any courses yet</h5>
+            <p class="text-muted mt-2">
+                Explore our catalog and start your learning journey today.
+            </p>
+            <a href="#" class="btn btn-primary btn-lg px-5 mt-3">Browse Courses</a>
+        </div>
     {% endif %}
-  </tbody>
-</table>
+
+    <!-- Quiz Results -->
+    {% if quiz_attempts %}
+    <div>
+      <h4 class="fw-semibold mb-3">Recent Quiz Results</h4>
+
+      <div class="card p-3">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Quiz</th>
+                <th>Score</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for quiz_attempt in quiz_attempts  %}
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ quiz_attempt.quiz.lesson.title }}</td>
+                    <td>{{ quiz_attempt.quiz.lesson.module.course.title }}</td>
+                    <td>{{ quiz_attempt.score }}</td>
+                    <td><a class="btn btn-success" href="{% url 'quizzes:quiz_result' quiz_attempt.quiz.lesson.module.course.slug quiz_attempt.quiz.lesson.module.id quiz_attempt.quiz.lesson.id quiz_attempt.id %}">View Score</a><td>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% else %}
+        <div class="card p-5 text-center opacity-75">
+            <h5 class="fw-semibold">No quiz attempts yet</h5>
+            <p class="text-muted mt-2">
+                Complete lessons and attempt quizzes to track your performance here.
+            </p>
+        </div>
+    {% endif %}
+
+  </div>
+</section>
+
 
 
 {% endblock content %}

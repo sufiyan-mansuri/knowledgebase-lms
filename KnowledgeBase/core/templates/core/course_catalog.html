@@ -59,7 +59,7 @@
                 <h5 class="fw-semibold">{{ published_course.title }}</h5>
                 <p class="text-muted small mb-2">Instructor: {{ published_course.instructor.full_name }}</p>
                 <p class="text-muted small flex-grow-1">
-                  {{ published_course.description }}
+                  {{ published_course.description|truncatechars:200 }}
                 </p>
                 {% if not published_course.id in user_enrolled_courses %}
                   <a href="{% url "enrollments:enroll" published_course.slug %}" class="btn btn-primary btn-sm mt-auto">Enroll</a>

@@ -11,9 +11,13 @@ from progress.models import LessonProgress, QuizAttempt
 def student_dashboard(request):
     student = request.user
     enrollments = Enrollment.objects.select_related('course').filter(student=student)
+    total_enrollments = 0
+    total_completed_lessons = 0
+
     enrolled_course_details = []
     for enrollment in enrollments:
         course = enrollment.course
+        total_enrollments += 1
 
         total_lessons = Lesson.objects.filter(module__course=course).count()
 
@@ -22,6 +26,8 @@ def student_dashboard(request):
             lesson__module__course=course,
             is_completed=True
         ).count()
+
+        total_completed_lessons += completed_lessons 
 
         enrolled_course_details.append({
             'course': course,
@@ -34,7 +40,9 @@ def student_dashboard(request):
 
     context = {
         'enrolled_course_details': enrolled_course_details,
-        'quiz_attempts': quiz_attempts
+        'quiz_attempts': quiz_attempts,
+        'total_enrollments': total_enrollments,
+        'total_completed_lessons': total_completed_lessons,
     }
 
     return render(request, 'dashboard/student_dashboard.html', context)
