@@ -85,10 +85,12 @@
           <table class="table align-middle mb-0">
             <thead>
               <tr>
+                <th>Sr. No</th>
                 <th>Course</th>
                 <th>Quiz</th>
                 <th>Score</th>
                 <th>Date</th>
+                <th>Result</th>
               </tr>
             </thead>
             <tbody>
@@ -97,6 +99,7 @@
                     <td>{{ quiz_attempt.quiz.lesson.title }}</td>
                     <td>{{ quiz_attempt.quiz.lesson.module.course.title }}</td>
                     <td>{{ quiz_attempt.score }}</td>
+                    <td>{{ quiz_attempt.created_at }}</td>
                     <td><a class="btn btn-success" href="{% url 'quizzes:quiz_result' quiz_attempt.quiz.lesson.module.course.slug quiz_attempt.quiz.lesson.module.id quiz_attempt.quiz.lesson.id quiz_attempt.id %}">View Score</a><td>
                 {% endfor %}
             </tbody>

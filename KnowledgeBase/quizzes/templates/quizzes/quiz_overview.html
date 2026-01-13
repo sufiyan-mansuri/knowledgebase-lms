@@ -2,14 +2,60 @@
 
 {% block content %}
 
-<h1>Quiz Overview</h1>
+<section class="py-5">
+  <div class="container">
 
-<ul>
-    <li>Lesson: {{ object.lesson.title }}</li>
-    <li>Total Marks: {{ object.total_marks }}</li>
-    <li>Total Questions: {{ object.questions.all.count }}</li>
-</ul>
-<a href="{% url "quizzes:quiz_attempt" object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Start Quiz</a>
-<p>Note: There is no time restriction on quiz but you will only get one attempt for this quiz. Good luck.</p>
+    <div class="row justify-content-center">
+      <div class="col-xl-7 col-lg-9">
+
+        <div class="card p-5 text-center">
+
+          <h2 class="fw-semibold mb-2">Quiz Overview</h2>
+          <p class="text-muted mb-4">
+            Lesson: <strong>{{ object.lesson.title }}</strong>
+          </p>
+
+          <div class="row mb-4">
+
+            <div class="col-4">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">{{ object.total_marks }}</h5>
+                <span class="text-muted small">Total Marks</span>
+              </div>
+            </div>
+
+            <div class="col-4">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">{{ object.questions.all.count }}</h5>
+                <span class="text-muted small">Questions</span>
+              </div>
+            </div>
+
+            <div class="col-4">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">1</h5>
+                <span class="text-muted small">Attempt</span>
+              </div>
+            </div>
+
+          </div>
+
+          <a href="{% url "quizzes:quiz_attempt" object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}"
+             class="btn btn-primary btn-lg px-5 mb-3">
+            Start Quiz
+          </a>
+
+          <p class="small text-muted mb-0">
+            You only get <strong>one attempt</strong>. No time limit.  
+            Answer carefully and give it your best shot.
+          </p>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}

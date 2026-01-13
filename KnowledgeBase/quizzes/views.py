@@ -447,6 +447,11 @@ class QuizAttemptView(StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
         kwargs['quiz'] = self.quiz
         return kwargs
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['quiz'] = self.quiz
+        return context
+
     def form_valid(self, form):
         attempt = QuizAttempt.objects.create(
             student = self.request.user, 
@@ -481,6 +486,18 @@ class QuizResultView(StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
     model = QuizAttempt
     template_name = 'quizzes/quiz_result.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = get_object_or_404(Course, slug=self.kwargs['slug'])
+        context["quiz"] = get_object_or_404(Quiz, lesson=self.kwargs['lesson_id'])
+        context["total_questions"] = Question.objects.filter(quiz=context['quiz']).count()
+        context["correct_questions"] = StudentAnswer.objects.filter(attempt=self.object, selected_option__is_correct=True).count()
+        context["incorrect_questions"] = StudentAnswer.objects.filter(attempt=self.object, selected_option__is_correct=False).count()
+        return context 
+
 class QuizOverviewPage(StudentRequiredMixin, DetailView):
     model = Quiz
     template_name = 'quizzes/quiz_overview.html'
+
+    
+    

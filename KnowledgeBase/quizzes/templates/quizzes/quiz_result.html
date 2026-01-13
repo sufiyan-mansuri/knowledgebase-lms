@@ -2,14 +2,76 @@
 
 {% block content %}
 
-<h1>Quiz Result</h1>
+<section class="py-5">
+  <div class="container">
 
-<ul>
-    <li>Total Marks: 999</li>
-    <li>Total Questions: 999</li>
-    <li>Correct Questions: 999/999</li>
-    <li>Wrong Questions: 999/999</li>
-    <li>Quiz Score: {{ object.score }}</li>
-</ul>
+    <div class="row justify-content-center">
+      <div class="col-xl-7 col-lg-9">
+
+        <div class="card p-5 text-center">
+
+          <h2 class="fw-semibold mb-2">Quiz Result</h2>
+          <p class="text-muted mb-4">
+            Here’s how you performed
+          </p>
+
+          <!-- Score Highlight -->
+          <div class="mb-4">
+            <div class="display-4 fw-bold text-success">
+              {{ object.score }}
+            </div>
+            <p class="text-muted">Final Score</p>
+          </div>
+
+          <!-- Stats -->
+          <div class="row g-3 mb-4">
+
+            <div class="col-6 col-md-3">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">{{ quiz.total_marks }}</h5>
+                <span class="text-muted small">Total Marks</span>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">{{ total_questions }}</h5>
+                <span class="text-muted small">Questions</span>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">{{ correct_questions }}</h5>
+                <span class="text-muted small">Correct</span>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="border rounded p-3">
+                <h5 class="fw-semibold mb-1">{{ incorrect_questions }}</h5>
+                <span class="text-muted small">Wrong</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'courses:course_detail' course.slug %}" class="btn btn-primary px-4">
+              Back to Course
+            </a>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary px-4">
+              Dashboard
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}
