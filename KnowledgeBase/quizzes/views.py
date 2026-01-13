@@ -69,6 +69,12 @@ class QuizCreateView(
         form.instance.lesson = self.lesson
         return super().form_valid(form) 
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course 
+        context["lesson"] = self.lesson
+        return context
+
     def get_success_url(self, **kwargs):
         return reverse_lazy('quizzes:quiz_detail', kwargs={
             'slug': self.lesson.module.course.slug,
@@ -119,6 +125,12 @@ class QuizUpdateView(
                 return self.form_invalid(form)
 
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course 
+        context["lesson"] = self.lesson
+        return context
 
     def get_success_url(self):
         return reverse_lazy('quizzes:quiz_detail', kwargs={
@@ -184,6 +196,12 @@ class QuestionCreateView(
         form.instance.quiz = self.quiz
         return super().form_valid(form) 
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course
+        context["quiz"] = self.quiz
+        return context
+
     def get_success_url(self, **kwargs):
         return reverse_lazy('quizzes:quiz_detail', kwargs={
             'slug': self.quiz.lesson.module.course.slug,
@@ -223,6 +241,12 @@ class QuestionUpdateView(
         form.instance.quiz = self.quiz
         return super().form_valid(form) 
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course
+        context["quiz"] = self.quiz
+        return context
+
     def get_success_url(self, **kwargs):
         return reverse_lazy('quizzes:quiz_detail', kwargs={
             'slug': self.quiz.lesson.module.course.slug,
@@ -319,7 +343,14 @@ class OptionCreateView(
     def form_valid(self, form):
         form.instance.question = self.question
         return super().form_valid(form) 
-    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course
+        context["quiz"] = self.quiz
+        context["question"] = self.question
+        return context
+
     def get_success_url(self, **kwargs):
         return reverse_lazy('quizzes:question_detail', kwargs={
             'slug': self.question.quiz.lesson.module.course.slug,
@@ -337,7 +368,7 @@ class OptionUpdateView(
     ):
     model = Option
     fields = ['option', 'is_correct', 'order']
-    template_name = 'quizzes/question_form.html'
+    template_name = 'quizzes/option_form.html'
     extra_context = {'page_title': 'Update Option', 'button_info': 'Update Option'}
 
     def dispatch(self, request, *args, **kwargs):
@@ -364,6 +395,13 @@ class OptionUpdateView(
         form.instance.question = self.question
         return super().form_valid(form) 
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course
+        context["quiz"] = self.quiz
+        context["question"] = self.question
+        return context
+
     def get_success_url(self, **kwargs):
         return reverse_lazy('quizzes:question_detail', kwargs={
             'slug': self.question.quiz.lesson.module.course.slug,

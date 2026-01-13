@@ -1,6 +1,51 @@
-<h1>Delete Option of {{ object.question.question }}: {{ object.option }}</h1>
+{% extends "base.html" %}
 
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">Yes, Delete</button>
-</form>
+{% block content %}
+
+<section class="py-5">
+  <div class="container">
+
+    <div class="row justify-content-center">
+      <div class="col-xl-6 col-lg-8">
+
+        <div class="card p-5 text-center">
+
+          <div class="mb-3 fs-1 text-danger">⚠️</div>
+
+          <h3 class="fw-semibold mb-2">Delete Option</h3>
+
+          <p class="text-muted mb-3">
+            Are you sure you want to permanently delete this option?
+          </p>
+
+          <div class="alert alert-light border mb-4">
+            <strong>Option:</strong> {{ object.option }}
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="d-flex justify-content-center gap-3">
+
+              <a href="{% url 'quizzes:question_detail' object.question.quiz.lesson.module.course.slug object.question.quiz.lesson.module.id object.question.quiz.lesson.id object.question.quiz.id object.question.id %}"
+                 class="btn btn-outline-secondary px-4">
+                Cancel
+              </a>
+
+              <button type="submit" class="btn btn-danger px-4">
+                Yes, Delete Option
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock content %}

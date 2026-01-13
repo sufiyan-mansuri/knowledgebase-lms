@@ -1,58 +1,172 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<div>
-    <h1>Quiz Detail: {{ object.lesson.title }}</h1>
+<section class="py-4">
+  <div class="container">
 
-    {% if object.status != 'locked' %}
-      <a href="{% url 'quizzes:quiz_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-warning">Edit Quiz</a>
-      <a href="{% url 'quizzes:question_create' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id %}" class="btn btn-primary">Add Question</a>
-      <a href="{% url 'quizzes:quiz_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}" class="btn btn-danger">Delete Quiz</a>
-    {% else %}
-      <p style='color: red'>This quiz has been attempted by students enrolled in this course, So it cannot be edited.</p>
-    {% endif %}
-</div>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<strong>Total Marks: {{ object.total_marks }}</strong>
+    <div>
+      <h2 class="fw-semibold mb-1">Quiz</h2>
+      <p class="text-muted mb-0">
+        Lesson: <strong>{{ object.lesson.title }}</strong> ·
+        Course: <strong>{{ object.lesson.module.course.title }}</strong>
+      </p>
+    </div>
 
-<h1>Questions</h1>
+    <div class="d-flex gap-2">
 
-<table class="table table-hover">
-  <thead>
-    <th>Sr No.</th>
-    <th>Question</th>
-    <th>Marks</th>
-    <th>Order</th>
-    <th>Options</th>
-    <th>Actions</th>
-  </thead>
-  <tbody>
-    {% if quiz_questions %}
-        {% for quiz_question in quiz_questions  %}
+      <a href="{% url 'lessons:lesson_list' object.lesson.module.course.slug object.lesson.module.id %}"
+        class="btn btn-outline-secondary">
+        ← Back to Lessons
+      </a>
+
+      {% if object.status != 'locked' %}
+
+        <a href="{% url 'quizzes:quiz_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}"
+          class="btn btn-outline-primary">
+          Edit Quiz
+        </a>
+
+        <a href="{% url 'quizzes:quiz_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id %}"
+          class="btn btn-outline-danger">
+          Delete Quiz
+        </a>
+
+      {% else %}
+
+        <span class="badge bg-danger px-3 py-2">
+          Quiz Locked — Already Attempted
+        </span>
+
+      {% endif %}
+
+    </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h5 class="fw-semibold mb-1">{{ object.total_marks }}</h5>
+          <span class="text-muted small">Total Marks</span>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h5 class="fw-semibold mb-1">{{ quiz_questions|length }}</h5>
+          <span class="text-muted small">Questions</span>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card p-3 text-center">
+          <h5 class="fw-semibold mb-1">{{ object.status|title }}</h5>
+          <span class="text-muted small">Status</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Questions Table -->
+    <div class="card p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0">Questions</h5>
+
+        {% if object.status != 'locked' %}
+          <a href="{% url 'quizzes:question_create' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id %}"
+            class="btn btn-sm btn-primary">
+            + Add Question
+          </a>
+        {% endif %}
+      </div>
+
+
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+
+          <thead>
             <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ quiz_question.question }}</td>
-                <td>{{ quiz_question.marks }}</td>
-                <td>{{ quiz_question.order }}</td>
-                <td><a class="btn btn-success" href='{% url "quizzes:question_detail" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}'>View Options</a></td>
-                <td>
-                  {% if object.status != 'locked' %}
-                    <a class="btn btn-warning" href='{% url "quizzes:question_update" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Edit</a>
-                    <a class="btn btn-danger" href='{% url "quizzes:question_delete" object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}' role="button">Delete</a>
-                  {% else %}
-                      <p>Quiz is in locked state.</p>
-                  {% endif %}
-                </td>
+              <th>#</th>
+              <th>Question</th>
+              <th>Marks</th>
+              <th>Order</th>
+              <th class="text-center">Options</th>
+              <th class="text-end">Actions</th>
             </tr>
-        {% endfor %}
-    {% else %}
-        <tr>
-            <td colspan='6'>No questions created for this quiz.</td>
-        </tr>
-    {% endif %}
-  </tbody>
-</table>
+          </thead>
+
+          <tbody>
+
+            {% if quiz_questions %}
+
+              {% for quiz_question in quiz_questions %}
+              <tr>
+
+                <td>{{ forloop.counter }}</td>
+
+                <td>{{ quiz_question.question|truncatechars:60 }}</td>
+
+                <td>{{ quiz_question.marks }}</td>
+
+                <td>{{ quiz_question.order }}</td>
+
+                <td class="text-center">
+                  <a href="{% url 'quizzes:question_detail' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}"
+                     class="btn btn-sm btn-outline-secondary">
+                    View
+                  </a>
+                </td>
+
+                <td class="text-end">
+
+                  {% if object.status != 'locked' %}
+
+                    <a href="{% url 'quizzes:question_update' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}"
+                       class="btn btn-sm btn-outline-primary me-2">
+                      Edit
+                    </a>
+
+                    <a href="{% url 'quizzes:question_delete' object.lesson.module.course.slug object.lesson.module.id object.lesson.id object.id quiz_question.id %}"
+                       class="btn btn-sm btn-outline-danger">
+                      Delete
+                    </a>
+
+                  {% else %}
+
+                    <span class="text-muted small">Locked</span>
+
+                  {% endif %}
+
+                </td>
+
+              </tr>
+              {% endfor %}
+
+            {% else %}
+
+              <tr>
+                <td colspan="6" class="text-center py-5">
+                  <h6 class="fw-semibold mb-2">No questions created yet</h6>
+                  <p class="text-muted mb-3">
+                    Start building your quiz by adding the first question.
+                  </p>
+                </td>
+              </tr>
+
+            {% endif %}
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}
-

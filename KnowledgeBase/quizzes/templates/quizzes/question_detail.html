@@ -2,46 +2,123 @@
 
 {% block content %}
 
-<h1>Question Detail: {{ object.question }}</h1>
-<div>
-    {% if object.quiz.status != 'locked' %}
-      <a class="btn btn-primary" href="{% url 'quizzes:option_create' object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id %}">Add Option</a><strong>(minimum 2)</strong>
-    {% endif %}
-</div>
+<section class="py-4">
+  <div class="container">
 
-<h2>Options</h2>
-<table class="table table-hover">
-  <thead>
-    <th>Sr No.</th>
-    <th>Option</th>
-    <th>Is Correct</th>
-    <th>Order</th>
-    <th>Actions</th>
-  </thead>
-  <tbody>
-    {% if question_options %}
-        {% for question_option in question_options  %}
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+      <div>
+        <h2 class="fw-semibold mb-1">Question</h2>
+        <p class="text-muted mb-0">
+          {{ object.question }}
+        </p>
+      </div>
+
+      <div class="d-flex gap-2">
+
+        <a href="{% url 'quizzes:quiz_detail' object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id %}"
+           class="btn btn-outline-secondary">
+          ← Back to Quiz
+        </a>
+
+        {% if object.quiz.status != 'locked' %}
+          <a href="{% url 'quizzes:option_create' object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id %}"
+             class="btn btn-primary">
+            + Add Option
+          </a>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- Question Info -->
+    <div class="card p-4 mb-4">
+      <div class="row text-center">
+
+        <div class="col-md-4">
+          <p class="mb-1 fw-semibold">Marks</p>
+          <p class="fs-4">{{ object.marks }}</p>
+        </div>
+
+        <div class="col-md-4">
+          <p class="mb-1 fw-semibold">Display Order</p>
+          <p class="fs-4">{{ object.order }}</p>
+        </div>
+
+        <div class="col-md-4">
+          <p class="mb-1 fw-semibold">Quiz Status</p>
+          <p class="fs-4">{{ object.quiz.status|title }}</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="card p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0">Options</h5>
+        <span class="small text-muted">Minimum 2 required</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
             <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ question_option.option }}</td>
-                <td>{{ question_option.is_correct }}</td>
-                <td>{{ question_option.order }}</td>
-                <td>
-                  {% if object.quiz.status != 'locked' %}
-                    <a class="btn btn-warning" href='{% url "quizzes:option_update" object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id question_option.id %}' role="button">Edit</a>
-                    <a class="btn btn-danger" href='{% url "quizzes:option_delete" object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id question_option.id %}' role="button">Delete</a>
-                  {% else %}
-                    <p>Quiz is in locked state.</p>
-                  {% endif %}
-                </td>
+              <th>#</th>
+              <th>Option</th>
+              <th>Correct</th>
+              <th>Order</th>
+              <th class="text-end">Actions</th>
             </tr>
-        {% endfor %}
-    {% else %}
-        <tr>
-            <td colspan='5'>No options created for this question.</td>
-        </tr>
-    {% endif %}
-  </tbody>
-</table>
+          </thead>
+
+          <tbody>
+            {% if question_options %}
+              {% for option in question_options %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ option.option }}</td>
+                  <td>
+                    {% if option.is_correct %}
+                      <span class="badge bg-success">Yes</span>
+                    {% else %}
+                      <span class="badge bg-secondary">No</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ option.order }}</td>
+                  <td class="text-end">
+
+                    {% if object.quiz.status != 'locked' %}
+                      <a class="btn btn-sm btn-outline-primary"
+                         href="{% url 'quizzes:option_update' object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id option.id %}">
+                        Edit
+                      </a>
+
+                      <a class="btn btn-sm btn-outline-danger"
+                         href="{% url 'quizzes:option_delete' object.quiz.lesson.module.course.slug object.quiz.lesson.module.id object.quiz.lesson.id object.quiz.id object.id option.id %}">
+                        Delete
+                      </a>
+                    {% else %}
+                      <span class="small text-muted">Locked</span>
+                    {% endif %}
+
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  No options created for this question yet.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
 
 {% endblock content %}

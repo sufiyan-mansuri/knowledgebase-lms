@@ -1,14 +1,95 @@
 {% extends "base.html" %}
+{% load form_tags %}
 
 {% block content %}
 
-<h1>{{ page_title }}</h1>
+<section class="py-5">
+  <div class="container">
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+    <div class="row justify-content-center">
+      <div class="col-xl-7 col-lg-9">
 
-    <button type="submit">{{ button_info }}</button>
-</form>
+        <div class="card p-5">
+
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <h2 class="fw-semibold">{{ page_title }}</h2>
+            <p class="text-muted">
+              Course: <strong>{{ course.title }}</strong> ·
+              Lesson: <strong>{{ quiz.lesson.title }}</strong> ·
+              Question: <strong>{{ question.question|truncatechars:60 }}</strong>
+            </p>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <!-- Option Text -->
+            <div class="mb-3">
+              <label class="form-label">Option Text</label>
+              {{ form.option|add_class:"form-control" }}
+
+              {% if form.option.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.option.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+
+              <!-- Correct -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Is this the correct answer?</label>
+                {{ form.is_correct }}
+
+                {% if form.is_correct.errors %}
+                  <div class="text-danger small mt-1">
+                    {{ form.is_correct.errors }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Order -->
+              <div class="col-md-6 mb-4">
+                <label class="form-label">Display Order</label>
+                {{ form.order|add_class:"form-control" }}
+
+                {% if form.order.errors %}
+                  <div class="text-danger small mt-1">
+                    {{ form.order.errors }}
+                  </div>
+                {% endif %}
+              </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'quizzes:question_detail' course.slug quiz.lesson.module.id quiz.lesson.id quiz.id question.id %}"
+                 class="btn btn-outline-secondary">
+                Cancel
+              </a>
+
+              <button class="btn btn-primary px-5">
+                {{ button_info }}
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}
