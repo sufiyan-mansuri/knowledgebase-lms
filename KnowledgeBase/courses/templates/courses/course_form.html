@@ -1,8 +1,83 @@
-<h1>{{ page_title }}</h1>
+{% extends "base.html" %}
+{% load form_tags %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
+{% block content %}
 
-    <button type="submit">{{ button_info }}</button>
-</form>
+<section class="py-5">
+  <div class="container">
+
+    <div class="row justify-content-center">
+      <div class="col-xl-8 col-lg-10">
+
+        <div class="card p-5">
+
+          <div class="mb-4 text-center">
+            <h2 class="fw-semibold">{{ page_title }}</h2>
+            <p class="text-muted">
+              Fill in the course information below
+            </p>
+          </div>
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <!-- Title -->
+            <div class="mb-3">
+              <label class="form-label">Course Title</label>
+              {{ form.title|add_class:"form-control" }}
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              {{ form.description|add_class:"form-control" }}
+            </div>
+
+            <!-- Category + Status -->
+            <div class="row">
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Category</label>
+                {{ form.category|add_class:"form-select" }}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Status</label>
+                {{ form.status|add_class:"form-select" }}
+              </div>
+
+            </div>
+
+            <!-- Thumbnail -->
+            <div class="mb-4">
+              <label class="form-label">Course Thumbnail</label>
+              {{ form.thumbnail|add_class:"form-control" }}
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'instructor_dashboard' %}" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+              <button type="submit" class="btn btn-primary px-5">
+                {{ button_info }}
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock content %}

@@ -2,28 +2,123 @@
 
 {% block content %}
 
-<h1>Welcome, {{ user.full_name }}</h1>
+<section class="py-4">
+  <div class="container">
 
-<ul>
-    <li><a href="{% url 'logout' %}">Logout</a></li>
-    <li><a href="{% url 'courses:course_create' %}">Create A New Course</a></li>
-</ul>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-semibold mb-1">Instructor Dashboard</h2>
+        <p class="text-muted mb-0">Manage your courses and students</p>
+      </div>
+      <a href="{% url "courses:course_create" %}" class="btn btn-primary">Create New Course</a>
+    </div>
 
-<h2>Your courses:</h2>
-<div class="row">
-    {% for course_detail in course_details  %}
-        <div class="card" style="width: 18rem;">
-            <img src="{{ course_detail.course.thumbnail.url }}" class="card-img-top" alt="{{ course_detail.course.title }}">
-            <div class="card-body">
-                <p class="card-text">{{ course_detail.course.title }}</p>
-                <p class="card-text">Status: {{ course_detail.course.status }}</p>
-                <p class="card-text">Total Enrollments: {{ course_detail.total_enrollments }}</p>
-                <a class="btn btn-warning" href="{% url 'courses:course_update' course_detail.course.slug %}" role="button">Edit</a>
-                <a class="btn btn-danger" href="{% url 'courses:course_delete' course_detail.course.slug %}" role="button">Delete</a>
-                <a class="btn btn-success" href="{% url 'courses:module_list' course_detail.course.slug %}" role="button">Modules</a>
-            </div>
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-md-4">
+        <div class="card p-3">
+          <h6 class="text-muted">Total Courses</h6>
+          <h3 class="fw-semibold">{{ total_course_count }}</h3>
         </div>
-    {% endfor %}
-</div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3">
+          <h6 class="text-muted">Total Enrollments</h6>
+          <h3 class="fw-semibold">{{ total_enrollment_count }}</h3>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3">
+          <h6 class="text-muted">Published Courses</h6>
+          <h3 class="fw-semibold">{{ published_course_count }}</h3>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Courses Table -->
+    <div class="card p-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0">My Courses</h5>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Status</th>
+              <th>Enrollments</th>
+              <th>Last Updated</th>
+              <th class="text-center">Modules</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% if course_details %}
+                {% for course_detail in course_details  %}
+                <tr>
+                    <td>
+                        <div class="fw-medium">{{ course_detail.course.title }}</div>
+                        <div class="text-muted small">{{ course_detail.course_module_count }} Modules · {{ course_detail.course_lesson_count }} Lessons</div>
+                    </td>
+
+                    <td>
+                        {% if course_detail.course.status == 'published' %}
+                            <span class="badge bg-success">Published</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Draft</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ course_detail.total_enrollments }}</td>
+
+                    <td>{{ course_detail.course.updated_at }}</td>
+
+                    <td class="text-center">
+                        <a href="{% url 'courses:module_list' course_detail.course.slug %}" class="btn btn-sm btn-outline-success">
+                        Modules
+                        </a>
+                    </td>
+
+                    <td class="text-end">
+                        <a href="{% url 'courses:course_update' course_detail.course.slug %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'courses:course_delete' course_detail.course.slug %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        <a href="{% url "courses:course_detail" course_detail.course.slug %}" class="btn btn-sm btn-outline-secondary">Preview</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-5">
+
+                    <h6 class="fw-semibold mb-2">No courses created yet</h6>
+                    <p class="text-muted mb-3">
+                    Start building your first course and publish it to reach students.
+                    </p>
+
+                    <a href="{% url "courses:course_create" %}" class="btn btn-primary btn-sm px-4">
+                    Create Your First Course
+                    </a>
+
+                </td>
+            </tr>
+            {% endif %}
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}

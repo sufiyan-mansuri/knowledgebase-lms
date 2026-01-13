@@ -51,18 +51,28 @@ def student_dashboard(request):
 def instructor_dashboard(request):
     instructor = request.user
     courses = Course.objects.filter(instructor=request.user.id)
-    
+    total_course_count = courses.count()
+    total_enrollment_count = Enrollment.objects.filter(course__instructor=instructor).count()
+    published_course_count = courses.filter(status='published').count()
+
     course_details = []
     for course in courses:
         total_enrollments = Enrollment.objects.filter(course=course, course__instructor=instructor).count()
+        course_module_count = course.modules.count()
+        course_lesson_count = Lesson.objects.filter(module__course=course).count()
 
         course_details.append({
             'course': course,
-            'total_enrollments': total_enrollments
+            'total_enrollments': total_enrollments,
+            'course_module_count': course_module_count,
+            'course_lesson_count': course_lesson_count,
         })
 
     context = {
         'course_details': course_details,
+        'total_course_count': total_course_count,
+        'total_enrollment_count': total_enrollment_count,
+        'published_course_count': published_course_count,
     }
 
     return render(request, 'dashboard/instructor_dashboard.html', context)
