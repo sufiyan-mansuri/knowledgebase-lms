@@ -154,6 +154,11 @@ class ModuleCreateView(InstructorRequiredMixin, CreateView):
 
         return super().form_valid(form)
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course 
+        return context
+    
     def get_success_url(self):
         return reverse_lazy('courses:module_list', kwargs={'slug': self.course.slug})
     
@@ -187,6 +192,11 @@ class ModuleUpdateView(InstructorRequiredMixin, UpdateView):
             return self.form_invalid(form)
         
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["course"] = self.course 
+        return context
 
     def get_success_url(self):
         return reverse_lazy('courses:module_list', kwargs={'slug': self.course.slug})
