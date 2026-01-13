@@ -1,15 +1,102 @@
 {% extends "base.html" %}
+{% load form_tags %}
 
 {% block content %}
 
-<h1>{{ page_title }}</h1>
+<section class="py-5">
+  <div class="container">
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+    <div class="row justify-content-center">
+      <div class="col-xl-7 col-lg-9">
 
-    <button type="submit">{{ button_info }}</button>
-</form>
+        <div class="card p-5">
+
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <h2 class="fw-semibold">{{ page_title }}</h2>
+            <p class="text-muted">
+              Course: <strong>{{ course.title }}</strong> ·
+              Module: <strong>{{ module.title }}</strong>
+            </p>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <!-- Title -->
+            <div class="mb-3">
+              <label class="form-label">Lesson Title</label>
+              {{ form.title|add_class:"form-control" }}
+
+              {% if form.title.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.title.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Content -->
+            <div class="mb-3">
+              <label class="form-label">Lesson Content</label>
+              {{ form.content|add_class:"form-control rows=5" }}
+
+              {% if form.content.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.content.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Video URL -->
+            <div class="mb-3">
+              <label class="form-label">YouTube Video URL</label>
+              {{ form.video_url|add_class:"form-control" }}
+
+              {% if form.video_url.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.video_url.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Order -->
+            <div class="mb-4">
+              <label class="form-label">Display Order</label>
+              {{ form.order|add_class:"form-control" }}
+
+              {% if form.order.errors %}
+                <div class="text-danger small mt-1">
+                  {{ form.order.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'lessons:lesson_list' course.slug module.id %}"
+                 class="btn btn-outline-secondary">
+                Cancel
+              </a>
+
+              <button class="btn btn-primary px-5">
+                {{ button_info }}
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}
-

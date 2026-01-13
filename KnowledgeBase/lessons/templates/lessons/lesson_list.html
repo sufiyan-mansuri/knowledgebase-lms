@@ -1,43 +1,130 @@
 {% extends "base.html" %}
+{% load form_tags %}
 
 {% block content %}
 
-<h1>Lessons</h1>
-<a href='{% url "lessons:lesson_create" course.slug module.id %}' class="btn btn-primary">Add Lesson</a>
+<section class="py-4">
+  <div class="container">
 
-<table class="table table-hover">
-  <thead>
-    <th>Title</th>
-    <th>Content</th>
-    <th>Video URL</th>
-    <th>Order</th>
-    <th>Actions</th>
-  </thead>
-  <tbody>
-    {% if object_list %}
-        {% for lesson in object_list  %}
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-semibold mb-1">Lessons</h2>
+        <p class="text-muted mb-0">
+          Module: <strong>{{ module.title }}</strong> · Course: <strong>{{ course.title }}</strong>
+        </p>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'courses:module_list' course.slug %}" class="btn btn-outline-secondary">
+          ← Back to Modules
+        </a>
+
+        <a href="{% url 'lessons:lesson_create' course.slug module.id %}"
+           class="btn btn-primary">
+          Add Lesson
+        </a>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card p-4">
+
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+
+          <thead>
             <tr>
-                <td>{{ lesson.title }}</td>
-                <td>{{ lesson.content }}</td>
-                <td>{{ lesson.video_url }}</td>
+              <th>Title</th>
+              <th>Order</th>
+              <th>Video</th>
+              <th>Content</th>
+              <th class="text-center">Quiz</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% if object_list %}
+
+              {% for lesson in object_list %}
+              <tr>
+
+                <td class="fw-medium">{{ lesson.title }}</td>
+
                 <td>{{ lesson.order }}</td>
+
                 <td>
-                  <a class="btn btn-warning" href='{% url "lessons:lesson_update" course.slug module.id lesson.id %}' role="button">Edit</a>
-                  <a class="btn btn-danger" href='{% url "lessons:lesson_delete" course.slug module.id lesson.id %}' role="button">Delete</a>
-                  {% if lesson.quizzes %}
-                    <a class="btn btn-success" href='{% url "quizzes:quiz_detail" course.slug module.id lesson.id %}' role="button">Manage Quiz</a>
+                  {% if lesson.video_url %}
+                    <span class="badge bg-success">Yes</span>
                   {% else %}
-                    <a class="btn btn-success" href='{% url "quizzes:quiz_create" course.slug module.id lesson.id %}' role="button">Create Quiz</a>
+                    <span class="badge bg-secondary">No</span>
                   {% endif %}
                 </td>
-            </tr>
-        {% endfor %}
-    {% else %}
-        <tr>
-            <td colspan='5'>No lessons created for this Module</td>
-        </tr>
-    {% endif %}
-  </tbody>
-</table>
+
+                <td>
+                  {{ lesson.content|truncatechars:40 }}
+                </td>
+
+                <!-- Quiz -->
+                <td class="text-center">
+                  {% if lesson.quizzes %}
+                    <a href="{% url 'quizzes:quiz_detail' course.slug module.id lesson.id %}"
+                       class="btn btn-sm btn-outline-primary">
+                      Manage
+                    </a>
+                  {% else %}
+                    <a href="{% url 'quizzes:quiz_create' course.slug module.id lesson.id %}"
+                       class="btn btn-sm btn-outline-secondary">
+                      Create
+                    </a>
+                  {% endif %}
+                </td>
+
+                <!-- Actions -->
+                <td class="text-end">
+                  <a href="{% url 'lessons:lesson_update' course.slug module.id lesson.id %}"
+                     class="btn btn-sm btn-outline-primary me-2">
+                    Edit
+                  </a>
+
+                  <a href="{% url 'lessons:lesson_delete' course.slug module.id lesson.id %}"
+                     class="btn btn-sm btn-outline-danger">
+                    Delete
+                  </a>
+                </td>
+
+              </tr>
+              {% endfor %}
+
+            {% else %}
+
+              <tr>
+                <td colspan="6" class="text-center py-5">
+
+                  <h6 class="fw-semibold mb-2">No lessons created yet</h6>
+                  <p class="text-muted mb-3">
+                    Start building your module by adding the first lesson.
+                  </p>
+
+                  <a href="{% url 'lessons:lesson_create' course.slug module.id %}"
+                     class="btn btn-primary btn-sm px-4">
+                    Create First Lesson
+                  </a>
+
+                </td>
+              </tr>
+
+            {% endif %}
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
 {% endblock content %}
