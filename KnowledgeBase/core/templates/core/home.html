@@ -24,13 +24,13 @@
         </p>
 
         <div class="mt-4 d-flex gap-3">
-          <a href="#" class="btn btn-primary btn-lg px-4">Get Started</a>
-          <a href="#" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+          <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4">Get Started</a>
+          <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
         </div>
       </div>
 
       <div class="col-lg-6 text-center">
-        <img src="https://illustrations.popsy.co/teal/education.svg"
+        <img src="https://www.21kschool.com/us/wp-content/uploads/sites/37/2024/09/Learning-Methods.png"
              class="img-fluid" alt="Learning Illustration">
       </div>
 
@@ -85,60 +85,37 @@
 </section>
 
 <!-- FEATURED COURSES -->
+{% if featured_courses %}
 <section class="py-5">
   <div class="container">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="fw-semibold">Featured Courses</h3>
-      <a href="#" class="small">View All Courses →</a>
+      <a href="{% url "course_catalog" %}" class="small">View All Courses →</a>
     </div>
 
     <div class="row g-4">
-
       <!-- Course Card -->
+      {% for featured_course in featured_courses  %}
       <div class="col-md-4">
         <div class="card h-100">
-          <img src="https://picsum.photos/400/250?1" class="card-img-top" alt="">
+          <img src="{{ featured_course.thumbnail.url }}" class="card-img-top" alt="">
           <div class="card-body">
-            <h5 class="fw-semibold">Web Development Bootcamp</h5>
+            <h5 class="fw-semibold">{{ featured_course.title }}</h5>
             <p class="text-muted small">
-              Learn full-stack web development from scratch.
+              {{ featured_course.description|truncatechars:200 }}
             </p>
-            <a href="#" class="btn btn-sm btn-primary">View Course</a>
+            <a href="{% url "courses:course_detail" featured_course.slug %}" class="btn btn-sm btn-primary">View Course</a>
           </div>
         </div>
       </div>
-
-      <div class="col-md-4">
-        <div class="card h-100">
-          <img src="https://picsum.photos/400/250?2" class="card-img-top" alt="">
-          <div class="card-body">
-            <h5 class="fw-semibold">Data Science Essentials</h5>
-            <p class="text-muted small">
-              Analyze data and build intelligent solutions.
-            </p>
-            <a href="#" class="btn btn-sm btn-primary">View Course</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card h-100">
-          <img src="https://picsum.photos/400/250?3" class="card-img-top" alt="">
-          <div class="card-body">
-            <h5 class="fw-semibold">Backend Engineering</h5>
-            <p class="text-muted small">
-              Design scalable and secure backend systems.
-            </p>
-            <a href="#" class="btn btn-sm btn-primary">View Course</a>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
 
     </div>
 
   </div>
 </section>
+{% endif %}
 
 <!-- CALL TO ACTION -->
 <section class="py-5 bg-white border-top">
@@ -149,7 +126,7 @@
       Join KnowledgeBase and transform your education experience.
     </p>
 
-    <a href="#" class="btn btn-primary btn-lg px-5">Create Free Account</a>
+    <a href="{% url "register" %}" class="btn btn-primary btn-lg px-5">Create Free Account</a>
 
   </div>
 </section>

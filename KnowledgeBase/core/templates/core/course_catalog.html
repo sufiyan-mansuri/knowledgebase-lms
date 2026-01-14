@@ -22,26 +22,20 @@
 
           <div class="mb-3">
             <label class="form-label">Category</label>
-            <select class="form-select">
-              <option selected>All Categories</option>
-              <option>Web Development</option>
-              <option>Data Science</option>
-              <option>Design</option>
-              <option>Business</option>
-            </select>
-          </div>
+            <form method="get">
+              <select name="category" class="form-select">
+                  <option value="">All Categories</option>
 
-          <div class="mb-3">
-            <label class="form-label">Level</label>
-            <select class="form-select">
-              <option selected>All Levels</option>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-            </select>
+                  {% for category in categories %}
+                      <option value="{{ category.name }}"
+                          {% if selected_category == category.name %}selected{% endif %}>
+                          {{ category.name }}
+                      </option>
+                  {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-primary w-100 mt-3">Apply Filters</button>
+          </form>
           </div>
-
-          <button class="btn btn-primary w-100">Apply Filters</button>
         </div>
       </div>
 
