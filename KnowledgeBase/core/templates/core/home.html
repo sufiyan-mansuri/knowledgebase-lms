@@ -99,7 +99,9 @@
       {% for featured_course in featured_courses  %}
       <div class="col-md-4">
         <div class="card h-100">
-          <img src="{{ featured_course.thumbnail.url }}" class="card-img-top" alt="">
+          <div class="course-thumb">
+            <img src="{{ featured_course.thumbnail.url }}" class="card-img-top" alt="">
+          </div>
           <div class="card-body">
             <h5 class="fw-semibold">{{ featured_course.title }}</h5>
             <p class="text-muted small">

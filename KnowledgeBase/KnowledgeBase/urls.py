@@ -23,8 +23,6 @@ from core.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-    path('', home, name='home'),
     path('user/', include('users.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('courses/', include('courses.urls')),
@@ -32,6 +30,7 @@ urlpatterns = [
     path('enrollments/', include('enrollments.urls')),
     path('progress/', include('progress.urls')),
     path('quizzes/', include('quizzes.urls')),
+    path('', include('core.urls')),
 ]
 
 handler403 = 'django.views.defaults.permission_denied'
@@ -39,5 +38,3 @@ handler404 = 'django.views.defaults.page_not_found'
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-    
