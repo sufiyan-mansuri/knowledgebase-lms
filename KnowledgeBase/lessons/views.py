@@ -10,9 +10,10 @@ from enrollments.models import Enrollment
 from progress.models import LessonProgress, QuizAttempt
 from quizzes.models import Quiz, Question, Option
 from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here. 
-class ModuleLessonListView(InstructorRequiredMixin, ListView):
+class ModuleLessonListView(LoginRequiredMixin, InstructorRequiredMixin, ListView):
     model = Lesson
     template_name = 'lessons/lesson_list.html'
     
@@ -32,7 +33,7 @@ class ModuleLessonListView(InstructorRequiredMixin, ListView):
         context["module"] = self.module
         return context
 
-class LessonCreateView(InstructorRequiredMixin, CreateView):
+class LessonCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
     model = Lesson
     extra_context = {'page_title': 'Create Lesson', 'button_info': 'Create Lesson'}
     fields = ['title', 'content', 'video_url', 'order']
@@ -43,8 +44,8 @@ class LessonCreateView(InstructorRequiredMixin, CreateView):
         self.module = get_object_or_404(Module, id=kwargs['module_id'])
         user = self.request.user
 
-        if not (user.is_superuser or self.course.instructor == user):
-            raise PermissionDenied
+        # if not (user.is_superuser or self.course.instructor == user):
+        #     raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -69,7 +70,7 @@ class LessonCreateView(InstructorRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
 
-class LessonUpdateView(InstructorRequiredMixin, UpdateView):
+class LessonUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
     model = Lesson
     template_name = 'lessons/lesson_form.html'
     extra_context = {'page_title': 'Update Lesson', 'button_info': 'Update Lesson'}
@@ -110,7 +111,7 @@ class LessonUpdateView(InstructorRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
 
-class LessonDeleteView(DeleteView):
+class LessonDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
     model = Lesson
     template_name = 'lessons/lesson_confirm_delete.html'
 
@@ -137,7 +138,7 @@ class LessonDeleteView(DeleteView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
     
-class LessonDetailView(StudentRequiredMixin, EnrollmentRequiredMixin, DetailView):
+class LessonDetailView(LoginRequiredMixin, StudentRequiredMixin, EnrollmentRequiredMixin, DetailView):
     model = Lesson 
     template_name = 'lessons/lesson_detail.html'
 
@@ -145,18 +146,22 @@ class LessonDetailView(StudentRequiredMixin, EnrollmentRequiredMixin, DetailView
         self.user = request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.module = get_object_or_404(Module, id=kwargs['module_id'], course=self.course)
-        self.progress = LessonProgress.objects.filter(lesson=self.get_object(), student=self.user).first()
-        
+
+        if self.user.is_authenticated:
+            self.progress = LessonProgress.objects.filter(lesson=self.get_object(), student=self.user).first()
+            self.is_user_enrolled = Enrollment.objects.filter(
+                course=self.course,
+                student=self.user
+            ).exists()
+        else:
+            self.progress = None
+            self.is_user_enrolled = False
+
         self.quiz = Quiz.objects.filter(
             lesson=self.get_object(),
             lesson__module__id=self.module.id,
             lesson__module__course__slug=self.course.slug,
         ).first()        
-
-        self.is_user_enrolled = Enrollment.objects.filter(
-            course=self.course,
-            student=self.user
-        ).exists()
 
         if self.is_user_enrolled:
             progress, _ = LessonProgress.objects.get_or_create(student=self.user, lesson=self.get_object())
@@ -165,8 +170,8 @@ class LessonDetailView(StudentRequiredMixin, EnrollmentRequiredMixin, DetailView
                 course=self.course
             ).update(last_accessed_lesson=self.get_object())
 
-        if not (self.is_user_enrolled or self.user.is_superuser):
-            raise PermissionDenied
+        # if not (self.is_user_enrolled or self.user.is_superuser):
+        #     raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
     

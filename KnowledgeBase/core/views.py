@@ -15,7 +15,12 @@ def home(request):
 def course_catalog(request):
     user = request.user
     published_courses = Course.objects.filter(status='published')
-    user_enrolled_courses = Enrollment.objects.filter(student=user).values_list('course_id', flat=True)
+    
+    if user.is_authenticated:
+        user_enrolled_courses = Enrollment.objects.filter(student=user).values_list('course_id', flat=True)
+    else:
+        user_enrolled_courses = []
+
     categories = Category.objects.all()
 
     selected_category = request.GET.get('category')

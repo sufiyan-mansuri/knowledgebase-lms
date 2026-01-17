@@ -11,9 +11,11 @@ from enrollments.models import Enrollment
 from core.mixins import InstructorRequiredMixin
 from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin, AttemptOwnershipMixin, CourseOwnerRequiredMixin, QuizEditableMixin
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 class QuizDetailView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     DetailView
@@ -41,6 +43,7 @@ class QuizDetailView(
         return context
 
 class QuizCreateView(
+    LoginRequiredMixin,
     InstructorRequiredMixin, 
     CourseOwnerRequiredMixin, 
     CreateView,
@@ -83,6 +86,7 @@ class QuizCreateView(
         })
 
 class QuizUpdateView(
+    LoginRequiredMixin, 
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -140,6 +144,7 @@ class QuizUpdateView(
         })
 
 class QuizDeleteView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -171,6 +176,7 @@ class QuizDeleteView(
         })
     
 class QuestionCreateView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -210,6 +216,7 @@ class QuestionCreateView(
         })
     
 class QuestionUpdateView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -255,6 +262,7 @@ class QuestionUpdateView(
         })
 
 class QuestionDeleteView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -288,6 +296,7 @@ class QuestionDeleteView(
         })
     
 class QuestionDetailView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     DetailView
@@ -316,6 +325,7 @@ class QuestionDetailView(
         return context
     
 class OptionCreateView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -361,6 +371,7 @@ class OptionCreateView(
         })
 
 class OptionUpdateView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -412,6 +423,7 @@ class OptionUpdateView(
         })
 
 class OptionDeleteView(
+    LoginRequiredMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -449,7 +461,7 @@ class OptionDeleteView(
             'question_id': self.question.id,
         })
 
-class QuizAttemptView(StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
+class QuizAttemptView(LoginRequiredMixin, StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
     template_name = 'quizzes/quiz_attempt.html'
     form_class = QuizAttemptForm
 
@@ -468,7 +480,11 @@ class QuizAttemptView(StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
         if self.quiz.status not in ['active', 'locked']:
             raise PermissionDenied
 
-        quiz_attempt = QuizAttempt.objects.filter(student=self.user, quiz=self.quiz).first()
+        if self.user.is_authenticated:
+            quiz_attempt = QuizAttempt.objects.filter(student=self.user, quiz=self.quiz).first()
+        else:
+            quiz_attempt = None
+
         if quiz_attempt:
             return redirect('quizzes:quiz_result', self.quiz.lesson.module.course.slug, self.quiz.lesson.module.id, self.quiz.lesson.id, quiz_attempt.id)
 
@@ -520,7 +536,7 @@ class QuizAttemptView(StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
 
         return redirect('quizzes:quiz_result', self.quiz.lesson.module.course.slug, self.quiz.lesson.module.id, self.quiz.lesson.id, attempt.id)
     
-class QuizResultView(StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
+class QuizResultView(LoginRequiredMixin, StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
     model = QuizAttempt
     template_name = 'quizzes/quiz_result.html'
 
@@ -533,7 +549,7 @@ class QuizResultView(StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
         context["incorrect_questions"] = StudentAnswer.objects.filter(attempt=self.object, selected_option__is_correct=False).count()
         return context 
 
-class QuizOverviewPage(StudentRequiredMixin, DetailView):
+class QuizOverviewPage(LoginRequiredMixin, StudentRequiredMixin, DetailView):
     model = Quiz
     template_name = 'quizzes/quiz_overview.html'
 

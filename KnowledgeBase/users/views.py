@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group
 from django.db import transaction
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def assign_group(user):
@@ -55,6 +56,7 @@ def login_view(request):
 def dashboard(request):
     return render(request, 'users/dashboard.html')
 
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('login')

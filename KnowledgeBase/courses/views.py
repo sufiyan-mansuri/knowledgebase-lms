@@ -10,6 +10,7 @@ from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
 from progress.models import LessonProgress
 from users.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class CourseListView(ListView):
     model = Course
@@ -25,10 +26,13 @@ class CourseDetailView(DetailView):
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.course_modules = Module.objects.filter(course=self.course).prefetch_related('lessons')
 
-        self.is_user_enrolled = Enrollment.objects.filter(
-            course=self.course,
-            student=self.user
-        ).exists()
+        if self.user.is_authenticated: 
+            self.is_user_enrolled = Enrollment.objects.filter(
+                course=self.course,
+                student=self.user
+            ).exists()
+        else: 
+            self.is_user_enrolled = False
 
         if self.is_user_enrolled:
             self.course_lessons = Lesson.objects.filter(module__course=self.course).count()            
@@ -66,7 +70,7 @@ class CourseDetailView(DetailView):
 
         return context
 
-class CourseCreateView(InstructorRequiredMixin, CreateView):
+class CourseCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
     model = Course
     extra_context = {'page_title': 'Create Course', 'button_info': 'Create Course'}
     fields = ['title', 'description', 'category', 'thumbnail', 'status']
@@ -79,7 +83,7 @@ class CourseCreateView(InstructorRequiredMixin, CreateView):
         course.save()
         return super().form_valid(form)
 
-class CourseUpdateView(InstructorRequiredMixin, UpdateView):
+class CourseUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
     model = Course
     extra_context = {'page_title': 'Update Course', 'button_info': 'Update Course'}
     fields = ['title', 'description', 'category', 'thumbnail', 'status']
@@ -96,7 +100,7 @@ class CourseUpdateView(InstructorRequiredMixin, UpdateView):
     success_url = reverse_lazy('instructor_dashboard')
         
 
-class CourseDeleteView(InstructorRequiredMixin, DeleteView):
+class CourseDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
     model = Course
     template_name = 'courses/course_confirm_delete.html'
     success_url = reverse_lazy('instructor_dashboard')
@@ -109,7 +113,7 @@ class CourseDeleteView(InstructorRequiredMixin, DeleteView):
 
         return Course.objects.filter(instructor=user)
 
-class CourseModuleListView(InstructorRequiredMixin, ListView):
+class CourseModuleListView(LoginRequiredMixin, InstructorRequiredMixin, ListView):
     model = Module
     template_name = 'courses/module_list.html'
 
@@ -127,7 +131,7 @@ class CourseModuleListView(InstructorRequiredMixin, ListView):
         context['course'] = self.course
         return context
 
-class ModuleCreateView(InstructorRequiredMixin, CreateView):
+class ModuleCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
     model = Module
     extra_context = {'page_title': 'Create Module', 'button_info': 'Create Module'}
     fields = ['title', 'order']
@@ -137,8 +141,8 @@ class ModuleCreateView(InstructorRequiredMixin, CreateView):
         user = self.request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
 
-        if not (user.is_superuser or self.course.instructor == user):
-            raise PermissionDenied
+        # if not (user.is_superuser or self.course.instructor == user):
+        #     raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -162,7 +166,7 @@ class ModuleCreateView(InstructorRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('courses:module_list', kwargs={'slug': self.course.slug})
     
-class ModuleUpdateView(InstructorRequiredMixin, UpdateView):
+class ModuleUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
     model = Module
     template_name = 'courses/module_form.html'
     extra_context = {'page_title': 'Update Module', 'button_info': 'Update Module'}
@@ -201,7 +205,7 @@ class ModuleUpdateView(InstructorRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('courses:module_list', kwargs={'slug': self.course.slug})
 
-class ModuleDeleteView(InstructorRequiredMixin, DeleteView):
+class ModuleDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
     model = Module
     template_name = 'courses/module_confirm_delete.html'
 
