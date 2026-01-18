@@ -3,8 +3,9 @@ from .models import LessonProgress
 from django.utils import timezone
 from lessons.models import Lesson
 from users.decorators import allowed_users
+from django.views.decorators.cache import never_cache
 
-# Create your views here.
+@never_cache
 @allowed_users('Students')
 def mark_lesson_as_complete(request, slug, module_id, lesson_id):
     user = request.user 

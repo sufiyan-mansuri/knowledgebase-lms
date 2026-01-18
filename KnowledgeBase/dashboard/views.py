@@ -5,8 +5,10 @@ from courses.models import Course
 from enrollments.models import Enrollment
 from lessons.models import Lesson
 from progress.models import LessonProgress, QuizAttempt
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
+@never_cache
 @allowed_users(['Students'])
 def student_dashboard(request):
     student = request.user
@@ -47,6 +49,7 @@ def student_dashboard(request):
 
     return render(request, 'dashboard/student_dashboard.html', context)
 
+@never_cache
 @allowed_users(['Instructors'])
 def instructor_dashboard(request):
     instructor = request.user

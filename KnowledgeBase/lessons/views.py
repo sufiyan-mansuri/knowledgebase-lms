@@ -9,11 +9,11 @@ from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
 from progress.models import LessonProgress, QuizAttempt
 from quizzes.models import Quiz, Question, Option
-from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin
+from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin, NeverCacheMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here. 
-class ModuleLessonListView(LoginRequiredMixin, InstructorRequiredMixin, ListView):
+class ModuleLessonListView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, ListView):
     model = Lesson
     template_name = 'lessons/lesson_list.html'
     
@@ -33,7 +33,7 @@ class ModuleLessonListView(LoginRequiredMixin, InstructorRequiredMixin, ListView
         context["module"] = self.module
         return context
 
-class LessonCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
+class LessonCreateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, CreateView):
     model = Lesson
     extra_context = {'page_title': 'Create Lesson', 'button_info': 'Create Lesson'}
     fields = ['title', 'content', 'video_url', 'order']
@@ -70,7 +70,7 @@ class LessonCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
 
-class LessonUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
+class LessonUpdateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, UpdateView):
     model = Lesson
     template_name = 'lessons/lesson_form.html'
     extra_context = {'page_title': 'Update Lesson', 'button_info': 'Update Lesson'}
@@ -111,7 +111,7 @@ class LessonUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
 
-class LessonDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
+class LessonDeleteView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, DeleteView):
     model = Lesson
     template_name = 'lessons/lesson_confirm_delete.html'
 
@@ -138,7 +138,7 @@ class LessonDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('lessons:lesson_list', kwargs={'slug': self.course.slug, 'module_id': self.module.id})
     
-class LessonDetailView(LoginRequiredMixin, StudentRequiredMixin, EnrollmentRequiredMixin, DetailView):
+class LessonDetailView(LoginRequiredMixin, NeverCacheMixin, StudentRequiredMixin, EnrollmentRequiredMixin, DetailView):
     model = Lesson 
     template_name = 'lessons/lesson_detail.html'
 

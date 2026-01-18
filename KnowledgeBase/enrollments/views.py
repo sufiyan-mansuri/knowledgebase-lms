@@ -3,9 +3,10 @@ from .models import Enrollment
 from courses.models import Course
 from django.core.exceptions import PermissionDenied
 from users.decorators import allowed_users
-
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
+@never_cache
 @allowed_users(['Students'])
 def enroll(request, slug):
     user = request.user 

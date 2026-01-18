@@ -1,10 +1,9 @@
 from django.urls import path
-from courses.views import CourseListView, CourseDetailView, CourseCreateView, CourseUpdateView, CourseDeleteView, CourseModuleListView, ModuleCreateView, ModuleUpdateView, ModuleDeleteView
+from courses.views import CourseDetailView, CourseCreateView, CourseUpdateView, CourseDeleteView, CourseModuleListView, ModuleCreateView, ModuleUpdateView, ModuleDeleteView
 
 app_name = 'courses'
 
 urlpatterns = [
-    path('', CourseListView.as_view(), name='course_list'),
     path('create/', CourseCreateView.as_view(), name='course_create'),
     path('<slug:slug>/', CourseDetailView.as_view(), name='course_detail'),
     path('<slug:slug>/update/', CourseUpdateView.as_view(), name='course_update'),

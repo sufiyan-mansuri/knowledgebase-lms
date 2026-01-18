@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .forms import QuizAttemptForm
 from progress.models import QuizAttempt, StudentAnswer
 from enrollments.models import Enrollment
-from core.mixins import InstructorRequiredMixin
+from core.mixins import InstructorRequiredMixin, NeverCacheMixin
 from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin, AttemptOwnershipMixin, CourseOwnerRequiredMixin, QuizEditableMixin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 class QuizDetailView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     DetailView
@@ -44,6 +45,7 @@ class QuizDetailView(
 
 class QuizCreateView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin, 
     CourseOwnerRequiredMixin, 
     CreateView,
@@ -87,6 +89,7 @@ class QuizCreateView(
 
 class QuizUpdateView(
     LoginRequiredMixin, 
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -145,6 +148,7 @@ class QuizUpdateView(
 
 class QuizDeleteView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -177,6 +181,7 @@ class QuizDeleteView(
     
 class QuestionCreateView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -217,6 +222,7 @@ class QuestionCreateView(
     
 class QuestionUpdateView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -263,6 +269,7 @@ class QuestionUpdateView(
 
 class QuestionDeleteView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -297,6 +304,7 @@ class QuestionDeleteView(
     
 class QuestionDetailView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     DetailView
@@ -326,6 +334,7 @@ class QuestionDetailView(
     
 class OptionCreateView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -372,6 +381,7 @@ class OptionCreateView(
 
 class OptionUpdateView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -424,6 +434,7 @@ class OptionUpdateView(
 
 class OptionDeleteView(
     LoginRequiredMixin,
+    NeverCacheMixin,
     InstructorRequiredMixin,
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
@@ -461,7 +472,7 @@ class OptionDeleteView(
             'question_id': self.question.id,
         })
 
-class QuizAttemptView(LoginRequiredMixin, StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
+class QuizAttemptView(LoginRequiredMixin, NeverCacheMixin, StudentRequiredMixin, EnrollmentRequiredMixin, FormView):
     template_name = 'quizzes/quiz_attempt.html'
     form_class = QuizAttemptForm
 
@@ -536,7 +547,7 @@ class QuizAttemptView(LoginRequiredMixin, StudentRequiredMixin, EnrollmentRequir
 
         return redirect('quizzes:quiz_result', self.quiz.lesson.module.course.slug, self.quiz.lesson.module.id, self.quiz.lesson.id, attempt.id)
     
-class QuizResultView(LoginRequiredMixin, StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
+class QuizResultView(LoginRequiredMixin, NeverCacheMixin, StudentRequiredMixin, AttemptOwnershipMixin, DetailView):
     model = QuizAttempt
     template_name = 'quizzes/quiz_result.html'
 
@@ -549,7 +560,7 @@ class QuizResultView(LoginRequiredMixin, StudentRequiredMixin, AttemptOwnershipM
         context["incorrect_questions"] = StudentAnswer.objects.filter(attempt=self.object, selected_option__is_correct=False).count()
         return context 
 
-class QuizOverviewPage(LoginRequiredMixin, StudentRequiredMixin, DetailView):
+class QuizOverviewPage(LoginRequiredMixin, NeverCacheMixin, StudentRequiredMixin, DetailView):
     model = Quiz
     template_name = 'quizzes/quiz_overview.html'
 

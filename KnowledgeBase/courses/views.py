@@ -5,17 +5,12 @@ from lessons.models import Lesson
 from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.db import IntegrityError
-from core.mixins import InstructorRequiredMixin
+from core.mixins import InstructorRequiredMixin, NeverCacheMixin
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
 from progress.models import LessonProgress
 from users.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-class CourseListView(ListView):
-    model = Course
-    template_name = 'courses/course_list.html'
-    context_object_name = 'courses'
 
 class CourseDetailView(DetailView):
     model = Course
@@ -70,7 +65,7 @@ class CourseDetailView(DetailView):
 
         return context
 
-class CourseCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
+class CourseCreateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, CreateView):
     model = Course
     extra_context = {'page_title': 'Create Course', 'button_info': 'Create Course'}
     fields = ['title', 'description', 'category', 'thumbnail', 'status']
@@ -83,7 +78,7 @@ class CourseCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
         course.save()
         return super().form_valid(form)
 
-class CourseUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
+class CourseUpdateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, UpdateView):
     model = Course
     extra_context = {'page_title': 'Update Course', 'button_info': 'Update Course'}
     fields = ['title', 'description', 'category', 'thumbnail', 'status']
@@ -100,7 +95,7 @@ class CourseUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
     success_url = reverse_lazy('instructor_dashboard')
         
 
-class CourseDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
+class CourseDeleteView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, DeleteView):
     model = Course
     template_name = 'courses/course_confirm_delete.html'
     success_url = reverse_lazy('instructor_dashboard')
@@ -113,7 +108,7 @@ class CourseDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
 
         return Course.objects.filter(instructor=user)
 
-class CourseModuleListView(LoginRequiredMixin, InstructorRequiredMixin, ListView):
+class CourseModuleListView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, ListView):
     model = Module
     template_name = 'courses/module_list.html'
 
@@ -131,7 +126,7 @@ class CourseModuleListView(LoginRequiredMixin, InstructorRequiredMixin, ListView
         context['course'] = self.course
         return context
 
-class ModuleCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
+class ModuleCreateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, CreateView):
     model = Module
     extra_context = {'page_title': 'Create Module', 'button_info': 'Create Module'}
     fields = ['title', 'order']
@@ -166,7 +161,7 @@ class ModuleCreateView(LoginRequiredMixin, InstructorRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('courses:module_list', kwargs={'slug': self.course.slug})
     
-class ModuleUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
+class ModuleUpdateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, UpdateView):
     model = Module
     template_name = 'courses/module_form.html'
     extra_context = {'page_title': 'Update Module', 'button_info': 'Update Module'}
@@ -205,7 +200,7 @@ class ModuleUpdateView(LoginRequiredMixin, InstructorRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('courses:module_list', kwargs={'slug': self.course.slug})
 
-class ModuleDeleteView(LoginRequiredMixin, InstructorRequiredMixin, DeleteView):
+class ModuleDeleteView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, DeleteView):
     model = Module
     template_name = 'courses/module_confirm_delete.html'
 

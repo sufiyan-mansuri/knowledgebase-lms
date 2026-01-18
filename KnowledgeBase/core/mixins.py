@@ -1,5 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from enrollments.models import Enrollment
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 
 class InstructorRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
@@ -50,3 +52,8 @@ class CourseOwnerRequiredMixin:
         if self.course.instructor != request.user:
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
+    
+class NeverCacheMixin:
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)

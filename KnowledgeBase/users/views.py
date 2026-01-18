@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
 def assign_group(user):
@@ -56,6 +57,7 @@ def login_view(request):
 def dashboard(request):
     return render(request, 'users/dashboard.html')
 
+@never_cache
 @login_required
 def logout_view(request):
     logout(request)
