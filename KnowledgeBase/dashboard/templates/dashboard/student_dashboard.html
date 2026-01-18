@@ -95,12 +95,14 @@
             </thead>
             <tbody>
                 {% for quiz_attempt in quiz_attempts  %}
+                  <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ quiz_attempt.quiz.lesson.title }}</td>
                     <td>{{ quiz_attempt.quiz.lesson.module.course.title }}</td>
                     <td>{{ quiz_attempt.score }}</td>
                     <td>{{ quiz_attempt.created_at }}</td>
                     <td><a class="btn btn-success" href="{% url 'quizzes:quiz_result' quiz_attempt.quiz.lesson.module.course.slug quiz_attempt.quiz.lesson.module.id quiz_attempt.quiz.lesson.id quiz_attempt.id %}">View Score</a><td>
+                  </tr>
                 {% endfor %}
             </tbody>
           </table>

@@ -31,6 +31,12 @@ class Question(models.Model):
 
     class Meta:
         ordering = ['order']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['quiz', 'order'],
+                name='unique_question_order_per_quiz'
+            )
+        ]
 
     def __str__(self):
         return f'{self.question}'
@@ -45,6 +51,12 @@ class Option(models.Model):
 
     class Meta:
         ordering = ['order']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['question', 'order'],
+                name='unique_option_order_per_question'
+            )
+        ]
 
     def __str__(self):
         return f'{self.option}'

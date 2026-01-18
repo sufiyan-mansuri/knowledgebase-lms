@@ -12,6 +12,7 @@ from core.mixins import InstructorRequiredMixin, NeverCacheMixin
 from core.mixins import StudentRequiredMixin, EnrollmentRequiredMixin, AttemptOwnershipMixin, CourseOwnerRequiredMixin, QuizEditableMixin
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import IntegrityError
 
 # Create your views here.
 class QuizDetailView(
@@ -205,6 +206,13 @@ class QuestionCreateView(
     
     def form_valid(self, form):
         form.instance.quiz = self.quiz
+
+        try:
+            form.save()
+        except IntegrityError:
+            form.add_error('order', 'A question with this order already exists in this quiz.')
+            return self.form_invalid(form)
+
         return super().form_valid(form) 
     
     def get_context_data(self, **kwargs):
@@ -252,6 +260,13 @@ class QuestionUpdateView(
 
     def form_valid(self, form):
         form.instance.quiz = self.quiz
+
+        try:
+            form.save()
+        except IntegrityError:
+            form.add_error('order', 'A question with this order already exists in this quiz.')
+            return self.form_invalid(form)
+
         return super().form_valid(form) 
     
     def get_context_data(self, **kwargs):
@@ -361,6 +376,13 @@ class OptionCreateView(
     
     def form_valid(self, form):
         form.instance.question = self.question
+
+        try:
+            form.save()
+        except IntegrityError:
+            form.add_error('order', 'An opiton with this order already exists in this question.')
+            return self.form_invalid(form)
+
         return super().form_valid(form) 
 
     def get_context_data(self, **kwargs):
@@ -414,6 +436,13 @@ class OptionUpdateView(
 
     def form_valid(self, form):
         form.instance.question = self.question
+
+        try:
+            form.save()
+        except IntegrityError:
+            form.add_error('order', 'An opiton with this order already exists in this question.')
+            return self.form_invalid(form)
+
         return super().form_valid(form) 
     
     def get_context_data(self, **kwargs):

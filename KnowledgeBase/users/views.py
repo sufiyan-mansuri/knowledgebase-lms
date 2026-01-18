@@ -28,6 +28,16 @@ def register_view(request):
                 
             return redirect('login')
     else:
+        if request.user.is_authenticated:
+            if request.user.groups.filter(name='Students').exists():
+                return redirect('student_dashboard')
+            
+            if request.user.groups.filter(name='Instructor').exists():
+                return redirect('instructor_dashboard')
+            
+            if request.user.is_superuser:
+                return redirect('/admin/')
+
         form = CustomUserCreationForm() 
 
     return render(request, 'users/register.html', {'form': form})
@@ -50,6 +60,16 @@ def login_view(request):
 
             return redirect('home')
     else:
+        if request.user.is_authenticated:
+            if request.user.groups.filter(name='Students').exists():
+                return redirect('student_dashboard')
+            
+            if request.user.groups.filter(name='Instructors').exists():
+                return redirect('instructor_dashboard')
+            
+            if request.user.is_superuser:
+                return redirect('/admin/')
+
         form = AuthenticationForm(request) 
 
     return render(request, 'users/login.html', {'form': form})

@@ -11,6 +11,7 @@ from enrollments.models import Enrollment
 from progress.models import LessonProgress
 from users.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse
 
 class CourseDetailView(DetailView):
     model = Course
@@ -70,13 +71,19 @@ class CourseCreateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMi
     extra_context = {'page_title': 'Create Course', 'button_info': 'Create Course'}
     fields = ['title', 'description', 'category', 'thumbnail', 'status']
     template_name = 'courses/course_form.html'
-    success_url = reverse_lazy('instructor_dashboard')
 
     def form_valid(self, form):
         course = form.save(commit=False)
-        course.instructor = self.request.user
-        course.save()
+
+        if not self.request.user.is_superuser:
+            course.instructor = self.request.user
+        
         return super().form_valid(form)
+    
+    def get_success_url(self):
+        if self.request.user.is_superuser:
+            return reverse('admin:courses_course_changelist')
+        return reverse('instructor_dashboard')
 
 class CourseUpdateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, UpdateView):
     model = Course
@@ -91,14 +98,21 @@ class CourseUpdateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMi
 
         return Course.objects.filter(instructor=user)
 
+    def form_valid(self, form):
+        course = form.save(commit=False)
+        course.slug = slugify(course.title)
+        return super().form_valid(form)
+
     template_name = 'courses/course_form.html'
-    success_url = reverse_lazy('instructor_dashboard')
-        
+    
+    def get_success_url(self):
+        if self.request.user.is_superuser:
+            return reverse('admin:courses_course_changelist')
+        return reverse('instructor_dashboard')
 
 class CourseDeleteView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, DeleteView):
     model = Course
     template_name = 'courses/course_confirm_delete.html'
-    success_url = reverse_lazy('instructor_dashboard')
 
     def get_queryset(self):
         user = self.request.user
@@ -107,6 +121,11 @@ class CourseDeleteView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMi
             return Course.objects.all()
 
         return Course.objects.filter(instructor=user)
+    
+    def get_success_url(self):
+        if self.request.user.is_superuser:
+            return reverse('admin:courses_course_changelist')
+        return reverse('instructor_dashboard')
 
 class CourseModuleListView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMixin, ListView):
     model = Module
@@ -120,7 +139,7 @@ class CourseModuleListView(LoginRequiredMixin, NeverCacheMixin, InstructorRequir
             return Module.objects.filter(course=self.course)
         
         raise PermissionDenied
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['course'] = self.course
@@ -135,9 +154,6 @@ class ModuleCreateView(LoginRequiredMixin, NeverCacheMixin, InstructorRequiredMi
     def dispatch(self, request, *args, **kwargs):
         user = self.request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
-
-        # if not (user.is_superuser or self.course.instructor == user):
-        #     raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
 

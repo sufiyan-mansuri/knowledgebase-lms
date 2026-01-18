@@ -12,10 +12,16 @@ def enroll(request, slug):
     user = request.user 
     course = get_object_or_404(Course, slug=slug)
     
-    if course.status == "published" and course.instructor != user:
-        Enrollment.objects.get_or_create(course=course, student=user)
-    else:
-        PermissionDenied
+    if user.is_superuser:
+        raise PermissionDenied('Admin cannot enroll in courses')
 
+    if course.status != 'published':
+        raise PermissionDenied('Cannot enroll in unpublished course')
+
+    if user.groups.filter(name='Instructors').exists():
+        raise PermissionDenied('Instructors cannot enroll')
+
+    Enrollment.objects.get_or_create(course=course, student=user)          
+    
     return redirect('courses:course_detail', slug=course.slug)
 

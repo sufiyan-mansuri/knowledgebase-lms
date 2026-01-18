@@ -10,9 +10,6 @@ def allowed_users(allowed_roles=[]):
             if not request.user.is_authenticated:
                 return redirect('login')
 
-            if request.user.is_superuser:
-                return wrapper_func
-
             user_groups = request.user.groups.values_list('name', flat=True)
 
             for role in user_groups:

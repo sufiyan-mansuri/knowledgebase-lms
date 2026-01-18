@@ -7,22 +7,22 @@ class InstructorRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         user = request.user
 
-        if not user.is_authenticated:
-            raise PermissionDenied
-        
-        if not (user.is_superuser or user.groups.filter(name='Instructors').exists()):
-            raise PermissionDenied
-        
-        return super().dispatch(request, *args, **kwargs)
+        if user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+
+        if user.groups.filter(name='Instructors').exists():
+            return super().dispatch(request, *args, **kwargs)
+
+        raise PermissionDenied
     
 class StudentRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         user = request.user
 
-        if not (user.is_authenticated or user.groups.filter(name='Students').exists()):
-            raise PermissionDenied
+        if user.groups.filter(name='Students').exists():
+            return super().dispatch(request, *args, **kwargs)
         
-        return super().dispatch(request, *args, **kwargs)
+        raise PermissionDenied
     
 class EnrollmentRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
@@ -49,6 +49,9 @@ class AttemptOwnershipMixin:
 
 class CourseOwnerRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+
         if self.course.instructor != request.user:
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
