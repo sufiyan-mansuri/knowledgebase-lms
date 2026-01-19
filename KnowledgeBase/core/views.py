@@ -16,6 +16,10 @@ def course_catalog(request):
     user = request.user
     published_courses = Course.objects.filter(status='published')
     
+    is_instructor = False
+    if user.groups.filter(name='Instructors').exists():
+        is_instructor = True
+
     if user.is_authenticated:
         user_enrolled_courses = Enrollment.objects.filter(student=user).values_list('course_id', flat=True)
     else:
@@ -33,6 +37,7 @@ def course_catalog(request):
         'user_enrolled_courses': user_enrolled_courses,
         'categories': categories,
         'selected_category': selected_category,
+        'is_instructor': is_instructor,
     }
 
     return render(request, 'core/course_catalog.html', data)

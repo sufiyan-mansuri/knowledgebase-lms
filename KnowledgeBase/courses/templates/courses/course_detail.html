@@ -24,34 +24,71 @@
             </div>
         </div>
 
-        <!-- RIGHT SIDE -->
-        {% if is_user_enrolled %}
         <div class="col-lg-4 d-flex justify-content-center align-items-start">
-            <div class="card p-4 text-center w-100">
+          <div class="card p-4 text-center w-100">
+
             <h4 class="fw-semibold mb-3">Course Access</h4>
-            <p class="text-muted mb-3">You are enrolled in this course.</p>
-            {% if last_accessed_lesson %}
-              <a href='{% url "lessons:lesson_detail" object.slug last_accessed_lesson.module.id last_accessed_lesson.id %}' class="btn btn-primary btn-lg px-5">Continue Learning</a>
-              <p class="small text-muted mt-3 mb-0">
-                  Last activity: Lesson {{ last_accessed_lesson.order }} — {{ last_accessed_lesson.title }}
+
+            {% if user.is_authenticated %}
+              {% if is_instructor %}
+                {% if object.instructor == user %}
+                  <p class="text-muted mb-3">
+                    You are the instructor of this course.
+                  </p>
+                  <a href="{% url 'courses:course_update' object.slug %}"
+                    class="btn btn-primary btn-lg w-100">
+                    Manage Course
+                  </a>
+                {% else %}
+                  <p class="text-muted mb-0">
+                    Instructors cannot enroll in courses.
+                  </p>
+                {% endif %}
+
+              {% else %}
+
+                {% if is_user_enrolled %}
+                  <p class="text-muted mb-3">
+                    You are enrolled in this course.
+                  </p>
+
+                  {% if last_accessed_lesson %}
+                    <a href="{% url 'lessons:lesson_detail' object.slug last_accessed_lesson.module.id last_accessed_lesson.id %}"
+                      class="btn btn-primary btn-lg w-100">
+                      Continue Learning
+                    </a>
+                    <p class="small text-muted mt-3 mb-0">
+                      Last activity:
+                      Lesson {{ last_accessed_lesson.order }} — {{ last_accessed_lesson.title }}
+                    </p>
+                  {% endif %}
+
+                {% else %}
+                  <p class="text-muted mb-3">
+                    You are not enrolled in this course.
+                  </p>
+                  <a href="{% url 'enrollments:enroll' object.slug %}"
+                    class="btn btn-primary btn-lg w-100">
+                    Enroll Now
+                  </a>
+                {% endif %}
+
+              {% endif %}
+
+            {% else %}
+
+              <p class="text-muted mb-3">
+                Please log in to enroll in this course.
               </p>
+              <a href="{% url 'login' %}" class="btn btn-primary btn-lg w-100">
+                Login to Enroll
+              </a>
+
             {% endif %}
-            
-            </div>
+
+          </div>
         </div>
-        {% else %}
-            <div class="col-lg-4 d-flex justify-content-center align-items-start">
-            <div class="card p-4 text-center w-100">
-                <h4 class="fw-semibold mb-3">Course Access</h4>
-                <p class="text-muted mb-3">
-                You are not enrolled in this course.
-                </p>
-                <a href="{% url "enrollments:enroll" object.slug %}" class="btn btn-primary btn-lg px-5">
-                Enroll Now
-                </a>
-            </div>
-        </div>
-        {% endif %}
+
     </div>
 
     <!-- Modules & Lessons -->
@@ -64,14 +101,29 @@
         <!-- Module -->
         {% for course_module in course_modules  %}
         <div class="card mb-3">
-          <div class="card-header bg-white">
-            <strong>Module {{ forloop.counter }}:</strong> {{ course_module.title }}
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+              <strong>Module {{ forloop.counter }}:</strong> {{ course_module.title }}
+            </div>
+
+            {% if user.is_authenticated and is_instructor and object.instructor == user %}
+              <a href="{% url 'courses:module_update' object.slug course_module.id %}"
+                class="btn btn-sm btn-outline-primary">
+                Edit
+              </a>
+            {% endif %}
           </div>
 
           <ul class="list-group list-group-flush">
             {% for lesson in course_module.lessons.all %}
             <li class="list-group-item d-flex justify-content-between">
-              <a href='{% url "lessons:lesson_detail" object.slug course_module.id lesson.id %}' class="text-decoration-none fw-medium">Lesson {{ forloop.counter }}: {{ lesson.title }}</a>
+              {% if not is_instructor and user.is_authenticated and is_user_enrolled %}
+                <a href='{% url "lessons:lesson_detail" object.slug course_module.id lesson.id %}' class="text-decoration-none fw-medium">Lesson {{ forloop.counter }}: {{ lesson.title }}</a>
+              {% else %}
+                <span class="text-muted">
+                  Lesson {{ lesson.order }}: {{ lesson.title }}
+                </span>
+              {% endif %}
               {% if is_user_enrolled %}
                 {% with user_progress=user_progress_map|dict_get:lesson.id %}
                   {% if user_progress %}
@@ -81,7 +133,14 @@
                   {% endif %}
                 {% endwith %}
               {% else %}
-                <span class="badge bg-secondary">Locked</span>
+                {% if is_instructor %}
+                   <a href="{% url 'lessons:lesson_update' object.slug course_module.id lesson.id %}"
+                      class="btn btn-sm btn-outline-primary">
+                      Edit
+                    </a>
+                {% else %}
+                  <span class="badge bg-secondary">Locked</span>
+                {% endif %}
               {% endif %}
             </li>
             {% endfor %}

@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
+from django.contrib import messages
 
 # Create your views here.
 def assign_group(user):
@@ -26,6 +27,7 @@ def register_view(request):
                 user = form.save()
                 assign_group(user)
                 
+            messages.info(request, 'Account created. Please log in.')
             return redirect('login')
     else:
         if request.user.is_authenticated:
@@ -74,12 +76,10 @@ def login_view(request):
 
     return render(request, 'users/login.html', {'form': form})
 
-def dashboard(request):
-    return render(request, 'users/dashboard.html')
-
 @never_cache
 @login_required
 def logout_view(request):
     logout(request)
+    messages.success(request, 'You have been logged out successfully.')
     return redirect('login')
 

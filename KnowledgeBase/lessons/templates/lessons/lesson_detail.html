@@ -10,8 +10,16 @@
 
         <!-- Breadcrumb -->
         <nav class="small text-muted mb-3">
-          {{ object.module.course.title }} → {{ object.module.title }} → Lesson {{ object.order }}: {{object.title}}
+          <a href="{% url 'courses:course_detail' course.slug %}"
+            class="text-decoration-none">
+            {{ course.title }}
+          </a>
+          <span class="mx-1">→</span>
+          <span>{{ module.title }}</span>
+          <span class="mx-1">→</span>
+          <span>Lesson {{ object.order }}: {{ object.title }}</span>
         </nav>
+
 
         <!-- Lesson Header -->
         <div class="mb-4">

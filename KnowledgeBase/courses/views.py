@@ -21,6 +21,9 @@ class CourseDetailView(DetailView):
         self.user = request.user
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.course_modules = Module.objects.filter(course=self.course).prefetch_related('lessons')
+        self.is_instructor = False
+        if self.user.groups.filter(name='Instructors').exists():
+            self.is_instructor = True
 
         if self.user.is_authenticated: 
             self.is_user_enrolled = Enrollment.objects.filter(
@@ -47,6 +50,7 @@ class CourseDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["course_modules"] = self.course_modules
         context['is_user_enrolled'] = self.is_user_enrolled 
+        context['is_instructor'] = self.is_instructor
 
         if self.is_user_enrolled:
             context['user_completed_lessons'] = self.user_completed_lessons

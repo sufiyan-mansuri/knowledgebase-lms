@@ -38,6 +38,18 @@ class Question(models.Model):
             )
         ]
 
+    def options_count(self):
+        return self.options.count()
+
+    def correct_options_count(self):
+        return self.options.filter(is_correct=True).count()
+
+    def is_valid_question(self):
+        return (
+            self.options_count() >= 2 and
+            self.correct_options_count() == 1
+        )
+
     def __str__(self):
         return f'{self.question}'
 

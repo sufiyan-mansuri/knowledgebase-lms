@@ -128,6 +128,13 @@ class QuizUpdateView(
             questions = self.object.questions.all()
             total = sum(question.marks for question in questions)
 
+            for question in questions:
+                if not question.is_valid_question():
+                    form.add_error(
+                        None,
+                        'Each question must have at least 2 options and exactly 1 correct option.'
+                    )
+
             if total != quiz.total_marks:
                 form.add_error('status', 'Total marks of questions must exactly match quiz total marks.')
                 return self.form_invalid(form)
@@ -377,7 +384,19 @@ class OptionCreateView(
     def form_valid(self, form):
         form.instance.question = self.question
 
-        try:
+        correct_option_exists = Option.objects.filter(
+            question=self.question,
+            is_correct=True
+        ).exists()
+
+        if correct_option_exists and form.cleaned_data.get('is_correct'):
+            form.add_error(
+                'is_correct',
+                'This question already has a correct option.'
+            )
+            return self.form_invalid(form)
+
+        try: 
             form.save()
         except IntegrityError:
             form.add_error('order', 'An opiton with this order already exists in this question.')
@@ -408,58 +427,78 @@ class OptionUpdateView(
     CourseOwnerRequiredMixin,
     QuizEditableMixin,
     UpdateView
-    ):
+):
     model = Option
     fields = ['option', 'is_correct', 'order']
     template_name = 'quizzes/option_form.html'
-    extra_context = {'page_title': 'Update Option', 'button_info': 'Update Option'}
+    extra_context = {
+        'page_title': 'Update Option',
+        'button_info': 'Update Option'
+    }
 
     def dispatch(self, request, *args, **kwargs):
         self.course = get_object_or_404(Course, slug=kwargs['slug'])
         self.quiz = get_object_or_404(Quiz, id=kwargs['quiz_id'])
 
         self.question = get_object_or_404(
-            Question, 
+            Question,
             id=kwargs['question_id'],
-            quiz__id = self.kwargs['quiz_id'],
-            quiz__lesson__id=self.kwargs['lesson_id'],
-            quiz__lesson__module__id=self.kwargs['module_id'],
-            quiz__lesson__module__course__slug=self.kwargs['slug'],
+            quiz__id=kwargs['quiz_id'],
+            quiz__lesson__id=kwargs['lesson_id'],
+            quiz__lesson__module__id=kwargs['module_id'],
+            quiz__lesson__module__course__slug=kwargs['slug'],
         )
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get_queryset(self):
-        return Option.objects.filter(
-            id=self.kwargs['pk'],
-            question=self.question
-        )
+        return Option.objects.filter(question=self.question)
 
     def form_valid(self, form):
-        form.instance.question = self.question
+        option = form.save(commit=False)
+        option.question = self.question
+
+        if option.is_correct:
+            correct_option_exists = Option.objects.filter(
+                question=self.question,
+                is_correct=True
+            ).exclude(id=option.id).exists()
+
+            if correct_option_exists:
+                form.add_error(
+                    'is_correct',
+                    'This question already has a correct option.'
+                )
+                return self.form_invalid(form)
 
         try:
-            form.save()
+            option.save()
         except IntegrityError:
-            form.add_error('order', 'An opiton with this order already exists in this question.')
+            form.add_error(
+                'order',
+                'An option with this order already exists for this question.'
+            )
             return self.form_invalid(form)
 
-        return super().form_valid(form) 
-    
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["course"] = self.course
-        context["quiz"] = self.quiz
-        context["question"] = self.question
+        context['course'] = self.course
+        context['quiz'] = self.quiz
+        context['question'] = self.question
         return context
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy('quizzes:question_detail', kwargs={
-            'slug': self.question.quiz.lesson.module.course.slug,
-            'module_id': self.question.quiz.lesson.module.id,
-            'lesson_id': self.question.quiz.lesson.id,
-            'quiz_id': self.question.quiz.id,
-            'question_id': self.question.id,
-        })
+    def get_success_url(self):
+        return reverse_lazy(
+            'quizzes:question_detail',
+            kwargs={
+                'slug': self.question.quiz.lesson.module.course.slug,
+                'module_id': self.question.quiz.lesson.module.id,
+                'lesson_id': self.question.quiz.lesson.id,
+                'quiz_id': self.question.quiz.id,
+                'question_id': self.question.id,
+            }
+        )
 
 class OptionDeleteView(
     LoginRequiredMixin,
