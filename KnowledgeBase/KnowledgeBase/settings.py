@@ -10,8 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from decouple import config
-from django.core.management.utils import get_random_secret_key
 from pathlib import Path
 import os
 
@@ -23,20 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('DJANGO_SECRET_KEY', cast=str, default=get_random_secret_key())
+SECRET_KEY = 'django-insecure-cydm8b)zz)unkg$h=2=f-_l$+*b8cua@0kxi3snif3adr6c&m='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DJANGO_DEBUG', cast=bool, default=False)
-ALLOWED_HOSTS = ['.railway.app']
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.railway.app'
-]
-
-if DEBUG:
-    ALLOWED_HOSTS = ['*']
+DEBUG = True
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -100,17 +92,6 @@ DATABASES = {
     }
 }
 
-DATABASE_URL = config('DATABASE_URL', cast=str, default="")
-if DATABASE_URL:
-    import dj_database_url 
-    if DATABASE_URL.startswith('postgres://') or DATABASE_URL.startswith(
-        'postgresql://'
-    ):
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=DATABASE_URL
-            )
-        }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
